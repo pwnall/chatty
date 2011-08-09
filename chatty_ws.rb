@@ -110,6 +110,7 @@ class Session
     @server = server
     @user = nil
     @room = nil
+    @nonces = Set.new
   end
   
   # Called after the WebSocket handshake completes.
@@ -140,6 +141,8 @@ class Session
   def received(data)
     case data['type']
     when 'text'
+      return if @nonces.include?(data['nonce'])
+      @nonces << data['nonce']
       room.message @user, data['text']
     when 'sync'
       @last_event_id = data['last_event_id'].to_i

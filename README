@@ -11,8 +11,8 @@ bundle install
 
 3. Start up the web server.
 bundle exec shotgun config.ru
-nohup bundle exec unicorn config.ru > web.log
+nohup bundle exec unicorn config.ru > web.log &
 
 4. Start up the chat server.
 bundle exec ./chatty_ws.rb
-nohup bundle exec ./chatty_ws.rb > ws.log
+nohup bundle exec ./chatty_ws.rb > ws.log &

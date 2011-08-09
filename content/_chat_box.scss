@@ -1,8 +1,8 @@
 .chat-box {
-  $header-color: hsl(0, 0, 0);
-  $border-color: hsl(0, 0, 0);
-  $message-border-color: hsl(0, 0, 85);
-  $composer-color: hsl(0, 0, 50);
+  $header-color: hsl(0, 0%, 0%);
+  $border-color: hsl(0, 0%, 0%);
+  $message-border-color: hsl(0, 0%, 85%);
+  $composer-color: hsl(0, 0%, 50%);
 
   @include vertical-flexbox;
   
@@ -11,7 +11,7 @@
     @include border-radius-top(4px);
     padding: 3px 3px 1px;
     
-    color: hsl(0, 0, 100);
+    color: hsl(0, 0%, 100%);
     font-size: 11pt;
     font-weight: bold;
     font-family: Tahoma, sans-serif;
@@ -47,23 +47,29 @@
     .time {
       display: inline-block;
       padding: 0 2px 0 0;
-      color: hsl(0, 0, 50);
+      color: hsl(0%, 0%, 50%);
     }
     .author {
       display: inline-block;
       padding: 0 4px 0 0;
-      color: hsl(0, 0, 35);
+      color: hsl(0%, 0%, 35%);
     }
     .event {
-      color: hsl(0, 0, 25);
+      color: hsl(0%, 0%, 25%);
     }
   }
     
   .status-bar {
-    color: hsl(0, 0, 25);
+    color: hsl(0%, 0%, 25%);
     text-align: center;
     font-size: 10pt;
     height: 1.2em;
+  }
+  .status-bar.info {
+    color: hsl(132, 70%, 32%);
+  }
+  .status-bar.error {
+    color: hsl(0, 100%, 44%);
   }
   
   .composer {

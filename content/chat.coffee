@@ -40,18 +40,22 @@ class ChatController
     
   onMessage: (data) ->
     @view.enableComposer()
-    @view.showInfo ':)'
+    @view.showInfo 'connected'
     if data.events
       @model.addEvent(event) for event in data.events
       @view.update @model
       
   submitMessage: (text) ->
-    @socketSend type: 'text', text: text
+    @socketSend type: 'text', text: text, nonce: @nonce()
 
   socketSend: (data) ->
     @ws.send JSON.stringify(data)
   
-  
+  nonce: ->
+    timestamp = (new Date()).getTime().toString 36
+    random = Math.floor(Math.random() * 0x7fffffff).toString 36
+    [random, timestamp].join '.'
+
 # The view for a chat box.
 class ChatView
   constructor: (@box) ->
@@ -95,9 +99,9 @@ class ChatView
     @$status.addClass klass
     
   update: (model) ->
-    start = @lastEventId()
-    if start
-      for eventId in [@lastEventId()..model.lastEventId]
+    last = @lastEventId()
+    if last
+      for eventId in [(last + 1)..model.lastEventId]
         @appendEvent(model.getEvent(eventId))
     else
       for event in model.getAllEvents()
