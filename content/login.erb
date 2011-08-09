@@ -1,0 +1,29 @@
+<html>
+  <head>
+    <title>WebSocket chat toy</title>
+    <link rel="stylesheet" href="chat.css" type="text/css" />
+
+    <script src="jquery.js" type="text/javascript"></script>
+    <script src="chat.js" type="text/javascript"></script>
+  </head>
+  <body>
+    <div id="browser-window">
+      <form class="login-box" action="/chat" method="POST">
+        <p class="field">
+          <label for="login_name">Name</label>
+          <input id="login_name" name="name" placeholder="teh_pwnerer"
+                 required="required" />
+        </p>
+        <p class="field">
+          <label for="login_room">Room</label>
+          <select id="login_room" name="room">
+            <option value="main" selected="selected">Main (default)</option>
+          </select>
+        </p>
+        <p class="action">
+          <button>Sign in</button>
+        </p>
+      </form>
+    </div>
+  </body>
+</html>

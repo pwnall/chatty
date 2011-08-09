@@ -1,0 +1,80 @@
+.chat-box {
+  $header-color: hsl(0, 0, 0);
+  $border-color: hsl(0, 0, 0);
+  $message-border-color: hsl(0, 0, 85);
+  $composer-color: hsl(0, 0, 50);
+
+  @include vertical-flexbox;
+  
+  .title {
+    background: $header-color;
+    @include border-radius-top(4px);
+    padding: 3px 3px 1px;
+    
+    color: hsl(0, 0, 100);
+    font-size: 11pt;
+    font-weight: bold;
+    font-family: Tahoma, sans-serif;
+  }
+  
+  .history, .composer, .status-bar {
+    border-left: 1px solid $border-color;
+    border-right: 1px solid $border-color;
+    padding-left: 2px;
+    padding-right: 2px;
+    padding-bottom: 2px;
+  }
+
+  .history {  
+    @include flexbox-rubber-child;
+    
+    @include vertical-flexbox;
+    @include flexbox-reverse;
+    
+    padding-top: 2px;
+    overflow: auto;
+    
+    li {
+      @include border-radius(2px);
+      border: 1px solid $message-border-color;
+      padding: 2px 1px;
+      margin: 2px 0;
+
+      font-size: 10pt;
+      font-weight: normal;
+    }
+    
+    .time {
+      display: inline-block;
+      padding: 0 2px 0 0;
+      color: hsl(0, 0, 50);
+    }
+    .author {
+      display: inline-block;
+      padding: 0 4px 0 0;
+      color: hsl(0, 0, 35);
+    }
+    .event {
+      color: hsl(0, 0, 25);
+    }
+  }
+    
+  .status-bar {
+    color: hsl(0, 0, 25);
+    text-align: center;
+    font-size: 10pt;
+    height: 1.2em;
+  }
+  
+  .composer {
+    border-bottom: 1px solid $border-color;
+
+    .message {
+      border: 1px solid $composer-color;
+      margin: 0;
+      
+      @include border-box-sizing;
+      width: 100%;
+    }
+  }
+}

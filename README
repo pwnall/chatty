@@ -1,0 +1,17 @@
+SETUP
+---
+
+1. Get Ruby, Rubygems, and bundler.
+sudo apt-get install ruby-full
+sudo gem update --system
+sudo gem install bundler
+
+2. Install all the required gems.
+bundle install
+
+3. Start up the web server.
+bundle exec shotgun serve_web.rb
+
+4. Start up the chat server.
+bundle exec serve_chat.rb
+

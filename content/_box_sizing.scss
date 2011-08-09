@@ -1,0 +1,13 @@
+// The IE box model. Handy for setting width/height to 100%.
+@mixin border-box-sizing {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+// The "standard" box model.
+@mixin content-box-sizing {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}

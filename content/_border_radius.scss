@@ -1,0 +1,16 @@
+// Generic border-radius statement.
+@mixin border-radius($value) {
+  -moz-border-radius: $value;
+  -webkit-border-radius: $value;
+  border-radius: $value;
+}
+
+// Top border-radius, for tabs and title bars.
+@mixin border-radius-top($value) {
+  -moz-border-radius-topleft: $value;
+  -moz-border-radius-topright: $value;
+  -webkit-border-top-left-radius: $value;
+  -webkit-border-top-right-radius: $value;
+  border-top-left-radius: $value;
+  border-top-right-radius: $value;
+}
