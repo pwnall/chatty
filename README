@@ -10,8 +10,9 @@ sudo gem install bundler
 bundle install
 
 3. Start up the web server.
-bundle exec shotgun serve_web.rb
+bundle exec shotgun config.ru
+nohup bundle exec unicorn config.ru > web.log
 
 4. Start up the chat server.
-bundle exec serve_chat.rb
-
+bundle exec ./chatty_ws.rb
+nohup bundle exec ./chatty_ws.rb > ws.log

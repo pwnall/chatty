@@ -8,8 +8,7 @@
   </head>
   <body>
     <div id="browser-window">
-      <div class="chat-box"
-           data-server="ws://localhost:9494/chat?room=<%= @safe_room %>&name=<%= @safe_name %>">
+      <div class="chat-box" data-server="<%= @chat_url %>">
         <p class="title">
           Chat
         </p>
