@@ -125,7 +125,7 @@ class Session
       events = @room.recent_events(10)
       respond_recent_events events
     else
-      @ws.close
+      @ws.close_websocket
     end
   end
   
@@ -139,13 +139,13 @@ class Session
   
   # Called when the client sends some data.
   def received(data)
-    case data['type']
+    case data[:type]
     when 'text'
-      return if @nonces.include?(data['nonce'])
-      @nonces << data['nonce']
-      room.message @user, data['text']
+      return if @nonces.include?(data[:nonce])
+      @nonces << data[:nonce]
+      room.message @user, data[:text]
     when 'sync'
-      @last_event_id = data['last_event_id'].to_i
+      @last_event_id = data[:last_event_id].to_i
       sync_events
     end
   end
@@ -195,7 +195,12 @@ class Server
         session = Session.new ws, server
         ws.onopen { session.connected ws.request['query'] }
         ws.onclose { session.closed }
-        ws.onmessage { |m| session.received JSON.parse(m) }
+        ws.onmessage do |m|
+          if m.respond_to?(:encoding) && m.encoding != 'UTF-8'
+            m.force_encoding 'UTF-8'
+          end
+          session.received JSON.parse(m, :symbolize_names => true)
+        end
       end
     end
   end

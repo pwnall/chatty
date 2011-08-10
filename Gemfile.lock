@@ -1,3 +1,11 @@
+GIT
+  remote: git://github.com/igrigorik/em-websocket.git
+  revision: 4421e7af243a1806ded14061dc3cc586cbd4ac18
+  specs:
+    em-websocket (0.3.1)
+      addressable (>= 2.1.1)
+      eventmachine (>= 0.12.9)
+
 GEM
   remote: http://rubygems.org/
   specs:
@@ -6,9 +14,6 @@ GEM
       coffee-script-source
       execjs
     coffee-script-source (1.1.2)
-    em-websocket (0.3.1)
-      addressable (>= 2.1.1)
-      eventmachine (>= 0.12.9)
     eventmachine (0.12.10)
     execjs (1.2.4)
       multi_json (~> 1.0)
@@ -37,7 +42,7 @@ PLATFORMS
 
 DEPENDENCIES
   coffee-script (>= 2.2)
-  em-websocket (>= 0.3.1)
+  em-websocket (>= 0.3.1)!
   eventmachine (>= 0.12.10)
   json (>= 1.5.0)
   sass (>= 3.1.0)
