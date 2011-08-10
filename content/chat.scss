@@ -25,5 +25,23 @@ html, body {
 }
 
 .login-box {
-  width: 100%;
+  display: table;
+  .field {
+    display: table-row;
+    label, input {
+      display: table-cell;
+    }
+    label {
+      min-width: 4em;
+    }
+    input {
+      @include border-box-sizing;
+      width: 100%; 
+    }
+  }
+  .action {
+    display: table-row;
+    text-align: center;
+  }
+  width: 20em;
 }
