@@ -31,13 +31,14 @@ class Room
     true
   end
   
-  def message(user, text)
-    event :type => 'text', :name => user.name, :text => text
+  def message(user, text, client_timestamp)
+    event :type => 'text', :name => user.name, :text => text,
+          :client_ts => client_timestamp
   end
   
   def event(data)
     id = @next_event_id
-    event = data.merge :id => @next_event_id, :time => Time.now.gmtime
+    event = data.merge :id => @next_event_id, :server_ts => Time.now.to_f
     @events[id] = event
     @next_event_id += 1
     @users.each do |name, user|
@@ -122,7 +123,7 @@ class Session
       @room = @server.room_named room_name
 
       @user.add_session self
-      events = @room.recent_events(10)
+      events = @room.recent_events(25)
       respond_recent_events events
     else
       @ws.close_websocket
@@ -143,7 +144,7 @@ class Session
     when 'text'
       return if @nonces.include?(data[:nonce])
       @nonces << data[:nonce]
-      room.message @user, data[:text]
+      room.message @user, data[:text], data[:client_ts]
     when 'sync'
       @last_event_id = data[:last_event_id].to_i
       sync_events

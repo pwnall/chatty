@@ -6,8 +6,8 @@ class ChatModel
     @lastEventId = null
     
   addEvent: (event) ->
-    @firstEventId = event.id unless @firstEventId
-    return false if @lastEventId and event.id != @lastEventId + 1
+    @firstEventId = event.id if @firstEventId is null
+    return false if @lastEventId is not null and event.id != @lastEventId + 1
     @events[event.id] = event
     @lastEventId = event.id
     
@@ -46,7 +46,9 @@ class ChatController
       @view.update @model
       
   submitMessage: (text) ->
-    @socketSend type: 'text', text: text, nonce: @nonce()
+    @socketSend
+      type: 'text', text: text, nonce: @nonce(),
+      client_ts: Date.now() / 1000
 
   socketSend: (data) ->
     @ws.send JSON.stringify(data)
@@ -59,6 +61,8 @@ class ChatController
 # The view for a chat box.
 class ChatView
   constructor: (@box) ->
+    @onMessageSubmission = ->
+
     @$box = $(box)
     @$form = $('.composer', box)
     @$history = $('.history', box)
@@ -66,8 +70,11 @@ class ChatView
     @$title = $('.title', box)
     @$status = $('.status-bar', box)
     @$message.val ''
+
     @$form.keydown (event) => @onKeyDown event
-    @$onMessageSubmission = ->
+    @$box.click (event) =>
+      @$message.focus()
+      event.preventDefault()
   
   onKeyDown: (event) ->
     if event.keyCode is 13 and !event.shiftKey
@@ -100,21 +107,21 @@ class ChatView
     
   update: (model) ->
     last = @lastEventId()
-    if last
-      for eventId in [(last + 1)..model.lastEventId]
-        @appendEvent(model.getEvent(eventId))
-    else
+    if last is null
       for event in model.getAllEvents()
         @appendEvent(event)
+    else
+      for eventId in [(last + 1)..model.lastEventId]
+        @appendEvent(model.getEvent(eventId))
     
   appendEvent: (event) ->
     $dom = $('<li><span class="time" /><span class="author" /></li>')
-    time = new Date(Date.parse(event.time))
+    time = new Date event.server_ts * 1000
     timeString = [time.getHours(), ':', Math.floor(time.getMinutes() / 10),
-                  time.getMinutes() % 10].join('')
-    $dom.attr('data-id', event.id);
-    $('.time', $dom).text(timeString);
-    $('.author', $dom).text(event.name);
+                  time.getMinutes() % 10].join ''
+    $dom.attr 'data-id', event.id
+    $('.time', $dom).text timeString
+    $('.author', $dom).text event.name
     switch event.type
       when 'text'
         $dom.append '<span class="message" />'
@@ -123,13 +130,19 @@ class ChatView
         $dom.append '<span class="event">joined the chat</span>'
       when 'part'
         $dom.append '<span class="event">left the chat</span>'
-    @$history.prepend $dom
+    if event.client_ts and Math.abs(event.server_ts - event.client_ts) >= 10
+      $('.time', $dom).addClass 'delayed'
+      $('.author', $dom).addClass 'delayed'
+      $dom.attr 'title', 'This message was delayed by the Internet. ' +
+                         'It may be out of context.'
+
+    @$history.append $dom
     
     setTimeout (=> @$history[0].scrollTop = @$history[0].scrollHeight), 10
   
   lastEventId: ->
-    event_id = parseInt $('li:first', @$history).attr('data-id')
-    return event_id or NaN
+    attr = $('li:last', @$history).attr('data-id')
+    if attr then parseInt(attr) else null
 
 # Sets up everything when the document loads.
 $ ->
