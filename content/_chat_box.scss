@@ -3,6 +3,7 @@
   $border-color: hsl(0, 0%, 0%);
   $message-border-color: hsl(0, 0%, 85%);
   $composer-color: hsl(0, 0%, 50%);
+  $message-font-size: 11pt;
 
   @include vertical-flexbox;
   
@@ -19,7 +20,7 @@
 
   font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans",
                sans-serif;
-  font-size: 11pt;
+  font-size: $message-font-size;
   
   .history, .composer, .status-bar {
     border-left: 1px solid $border-color;
@@ -90,11 +91,14 @@
       
       font-family: inherit;
       font-size: inherit;
+      line-height: 1.2em;
       
       @include border-box-sizing;
       width: 100%;
-      min-height: 3em;
-      max-height: 8em;
+      resize: vertical;
+      overflow: auto;
+      min-height: (4 * 1.2 * $message-font-size);
+      max-height: 80%;
     }
   }
 }
