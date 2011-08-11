@@ -93,6 +93,8 @@
       
       @include border-box-sizing;
       width: 100%;
+      min-height: 3em;
+      max-height: 8em;
     }
   }
 }
