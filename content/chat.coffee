@@ -155,6 +155,76 @@ class ChatView
         $dom.append $span
     $dom
     
+# Common infrastructure for any desktop notification controller.
+class DesktopNotificationBase
+  constructor: ->
+    if window.webkitNotifications
+      @configureWebkit()
+    # TODO(pwnall): HTML5 spec-compliant engine, when an implementation becomes
+    #               available, so we can test against it
+    
+    @queryPermission
+
+  # Creates and shows a desktop notification.
+  #
+  # Returns a 
+  post: (title, text) ->
+    # NOTE: this is a stub, so we give up right away.
+    false
+  
+  # Asks the notification engine if we're allowed to post notifications.
+  #
+  # Sets the instance variables @prompted (if the user has been prompted to
+  # enable desktop notifications) and @allowed (if we're allowed to post
+  # notifications).
+  queryPermission: ->
+    # NOTE: this is a stub, so it's safe to pretend we can't post.
+    @prompted = true
+    @allowed = false
+
+  # Asks the user to allow us to post desktop notifications.    
+  requestPermission: ->
+    # NOTE: this is a stub, so we give up right away.
+    false
+    
+  # Desktop notifications will be served using the WebKit backend.
+  configureWebkit: ->
+    @backend = window.webkitNotifications
+    @queryPermission = @webkitQueryPermission
+    @requestPermission = @webkitRequestPermission
+  
+  # WebKit implementation of post.
+  webkitPost: (title, text) ->
+    post = @backend.createNotification null, title, text
+    post.show()
+    post
+
+  # WebKit implementation of checkPermission.
+  webkitQueryPermission: ->
+    switch @backend.checkPermission()
+    when @backend.PERMISSION_ALLOWED or 0
+      @prompted = true
+      @allowed = true
+    when @backend.PERMISSION_NOT_ALLOWED or 1
+      @prompted = false
+      @allowed = false
+    when @backend.PERMISSION_DENIED or 2
+      @prompted = true
+      @allowed = false
+      
+  # WebKit implementation of requestPermission.
+  webkitRequestPermission: ->
+    @backend.requestPermission => @queryPermission
+
+class DesktopNotification extends DesktopNotificationBase
+  constructor: -> (@chatbox)
+    $status = $('', @chatbox)
+    unless @prompted
+      
+    
+    
+
+    
 # Spruces up messages with smileys.
 class Emoticons
   # Sets up blank data structures and fires an AJAX call to get smiley info.
