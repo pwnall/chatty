@@ -1,5 +1,6 @@
 .chat-box {
-  $header-color: hsl(0, 0%, 0%);
+  $header-color: hsl(0, 0%, 40%);
+  $active-header-color: hsl(0, 0%, 40%);
   $border-color: hsl(0, 0%, 0%);
   $message-border-color: hsl(0, 0%, 85%);
   $composer-color: hsl(0, 0%, 50%);
@@ -17,12 +18,15 @@
     font-weight: bold;
     font-family: Tahoma, sans-serif;
   }
+  &.notification {
+    background: $active-header-color;
+  }
 
   font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans",
                sans-serif;
   font-size: $message-font-size;
   
-  .history, .composer, .status-bar {
+  .history, .composer, .notification-area {
     border-left: 1px solid $border-color;
     border-right: 1px solid $border-color;
     padding-left: 2px;
@@ -68,18 +72,27 @@
       color: hsl(0%, 100%, 25%);
     }
   }
-    
-  .status-bar {
-    color: hsl(0%, 0%, 25%);
-    text-align: center;
-    font-size: 10pt;
-    height: 1.2em;
-  }
-  .status-bar.info {
-    color: hsl(132, 70%, 32%);
-  }
-  .status-bar.error {
-    color: hsl(0, 100%, 44%);
+  
+  .notification-area {
+    .desktop-notification-prompt {
+      text-align: center;
+      
+      &.hidden {
+        display: none;
+      }
+    }
+    .status-bar {
+      color: hsl(0%, 0%, 25%);
+      text-align: center;
+      font-size: 10pt;
+      height: 1.2em;
+    }
+    .status-bar.info {
+      color: hsl(132, 70%, 32%);
+    }
+    .status-bar.error {
+      color: hsl(0, 100%, 44%);
+    }
   }
   
   .composer {

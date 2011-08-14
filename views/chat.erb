@@ -1,10 +1,10 @@
 <html>
   <head>
-    <title>WebSocket chat toy</title>
-    <link rel="stylesheet" href="chat.css" type="text/css" />
+    <title>Chatty</title>
+    <link rel="stylesheet" href="application.css" type="text/css" />
 
     <script src="jquery.js" type="text/javascript"></script>
-    <script src="chat.js" type="text/javascript"></script>
+    <script src="application.js" type="text/javascript"></script>
   </head>
   <body>
     <div id="browser-window">
@@ -15,8 +15,13 @@
         <ul class="history">
 
         </ul>
-        <div class="status-bar info">
-          loading
+        <div class="notification-area">
+          <div class="desktop-notification-prompt hidden">
+            <a class="trigger" href="">Enable desktop notifications</a>
+          </div>
+          <div class="status-bar info">
+            loading
+          </div>
         </div>
         <form class="composer">
           <textarea class="message" autofocus="autofocus" disabled="disabled"
