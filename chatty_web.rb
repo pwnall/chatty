@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
-require 'bundler/setup'
+require 'bundler'
+Bundler.setup :default, :web
 
 require 'cgi'
 require 'sinatra'
