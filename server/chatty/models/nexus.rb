@@ -22,8 +22,11 @@ class Nexus
     
     new_user = User.new name  # TODO: database create-or-fetch
     
-    @users[name] = new_user
-    new_user
+    # TODO: this goes in the db's response block
+    @users[name] ||= new_user
+    block.call @users[name]
+
+    nil
   end
   
   # Creates or retrieves a chat room.
@@ -39,8 +42,11 @@ class Nexus
     
     new_room = Room.new name  # TODO: database create-or-fetch
     
-    @rooms[name] = new_room
-    new_room
+    # TODO: this goes in the db's response block
+    @rooms[name] ||= new_room
+    block.call @rooms[name]
+    
+    nil
   end
 end  # class Chatty::Nexus
 

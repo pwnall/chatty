@@ -21,12 +21,16 @@ class Session
     user_name = query['name']
     room_name = query['room']
     if user_name && room_name
-      @user = @nexus.user_named user_name
-      @room = @nexus.room_named room_name
-
-      @user.add_session self
-      events = @room.recent_events(25)
-      respond_recent_events events
+      @nexus.user_named user_name do |user|
+        @user = user
+        @nexus.room_named room_name do |room|
+          @room = room
+          
+          @user.add_session self
+          events = @room.recent_events(25)
+          respond_recent_events events
+        end
+      end
     else
       @ws.close_websocket
     end
