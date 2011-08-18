@@ -16,7 +16,14 @@ class ChattyWeb < Sinatra::Application
   end
   
   # Login HTML.
-  get('/') { erb :"views/login" }
+  get '/' do
+    erb :"views/login"
+  end
+  
+  # Requested when Chrome restarts with a chat window open.
+  get '/chat' do
+    redirect '/'
+  end
   
   # Chat HTML.
   post '/chat' do

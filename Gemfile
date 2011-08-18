@@ -10,6 +10,11 @@ group :chat do
   gem 'eventmachine', '>= 0.12.10'
 end
 
+group :chat_db do
+  gem 'mongo', '>= 1.3.1'
+  gem 'bson_ext', '>= 1.3.1'
+end
+
 group :web do
   gem 'sinatra', '>= 1.0.0'
   gem 'shotgun', '>= 0.9'
