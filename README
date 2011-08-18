@@ -6,13 +6,19 @@ sudo apt-get install ruby-full
 sudo gem update --system
 sudo gem install bundler
 
-2. Install all the required gems.
+2. Install mongodb, if necessary.
+sudo apt-get install mongodb
+
+3. Install all the required gems.
 bundle install
 
-3. Start up the web server.
+4. Create or update the database
+bundle exec server/db_schema.rb
+
+5. Start up the web server.
 bundle exec shotgun config.ru
 nohup bundle exec unicorn config.ru > web.log &
 
-4. Start up the chat server.
+6. Start up the chat server.
 bundle exec ./chatty_ws.rb
 nohup bundle exec server/boot.rb > server.log &
