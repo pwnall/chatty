@@ -25,10 +25,7 @@ class Session
         @user = user
         @nexus.room_named room_name do |room|
           @room = room
-          
           @user.add_session self
-          events = @room.recent_events(25)
-          respond_recent_events events
         end
       end
     else
@@ -64,7 +61,8 @@ class Session
   
   # Transmits any events that the client might not know about.
   def sync_events
-    events = @room.events_after @last_event_id
+    events = @last_event_id ? @room.events_after(@last_event_id) :
+                              @room.recent_events(25)
     return if events.empty?
     respond_recent_events events
   end
@@ -75,6 +73,8 @@ class Session
   #   events:: an array of events; the code assumes these are the most recent
   #            events in the session's room
   def respond_recent_events(events)
+    return if events.empty?
+    
     last_id = events.last[:id]
     respond :last_event_id => last_id, :events => events
     @last_event_id = last_id

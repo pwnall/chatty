@@ -2,9 +2,17 @@
 module Chatty
   
 # Central location for a chat server's data.
+#
+# This class caches User and Room instances, and ensures against aliasing (the
+# rest of the code will never see different Room or User objects pointing to the
+# same user or room). 
 class Nexus
   # Prepares a nexus with a cold cache.
-  def initialize
+  #
+  # Args:
+  #   db:: Mongo database backing chat logs
+  def initialize(db)
+    @db = db
     @users = {}
     @rooms = {}
   end
@@ -33,19 +41,18 @@ class Nexus
   #
   # Returns nil.
   #
-  # The User instance is yielded, possibly after the call completes.
+  # The Room instance is yielded, most likely after the call completes.
   def room_named(name, &block)
     if @rooms[name]
       block.call @rooms[name]
       return nil
     end
     
-    new_room = Room.new name  # TODO: database create-or-fetch
-    
-    # TODO: this goes in the db's response block
-    @rooms[name] ||= new_room
-    block.call @rooms[name]
-    
+    Room.named name, @db do |new_room|
+      # TODO: this goes in the db's response block
+      @rooms[name] ||= new_room
+      block.call @rooms[name]
+    end
     nil
   end
 end  # class Chatty::Nexus

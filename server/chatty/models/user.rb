@@ -21,8 +21,8 @@ class User
       @rooms[room_name] += 1
     else
       @rooms[room_name] = 1
-      session.room.add_user session.user
     end
+    session.room.ack_new_session session, @rooms[room_name] == 1
   end
   
   def remove_session(session)
@@ -30,11 +30,15 @@ class User
     
     room_name = session.room.name
     return unless @rooms[room_name]
+    
     @rooms[room_name] -= 1
     if @rooms[room_name] == 0
       @rooms.delete room_name
-      session.room.remove_user session.user
+      is_last_session = true
+    else
+      is_last_session = false
     end
+    session.room.ack_closed_session session, is_last_session
   end
 end  # class Chatty::User
 

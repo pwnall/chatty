@@ -4,6 +4,8 @@ gem 'json', '>= 1.5.0', :platforms => [:ruby_18]
 gem 'nokogiri', '>= 1.5.0'
 
 group :chat do
+  gem 'activesupport', '>= 3.0.0'
+  gem 'i18n'
   gem 'em-mongo', '>= 0.4.0'
   gem 'em-websocket', '>= 0.3.1',
       :git => 'git://github.com/igrigorik/em-websocket.git'
