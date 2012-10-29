@@ -1,3 +1,5 @@
 .sass-cache
 *.rbc
 *.log
+*.sw*
+

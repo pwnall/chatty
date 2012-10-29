@@ -1,28 +1,27 @@
-source 'http://rubygems.org'
+source :rubygems
 
-gem 'json', '>= 1.5.0', :platforms => [:ruby_18]
-gem 'nokogiri', '>= 1.5.0'
+gem 'json', '>= 1.7.5', :platforms => [:ruby_18]
+gem 'nokogiri', '>= 1.5.5'
 
 group :chat do
-  gem 'activesupport', '>= 3.0.0'
+  gem 'activesupport', '>= 3.2.0'
   gem 'i18n'
-  gem 'em-mongo', '>= 0.4.0'
-  gem 'em-websocket', '>= 0.3.1',
-      :git => 'git://github.com/igrigorik/em-websocket.git'
-  gem 'eventmachine', '>= 0.12.10'
+  gem 'em-mongo', '>= 0.4.3'
+  gem 'em-websocket', '>= 0.3.8'
+  gem 'eventmachine', '>= 1.0.0'
 end
 
 group :chat_db do
-  gem 'mongo', '>= 1.3.1'
-  gem 'bson_ext', '>= 1.3.1'
+  gem 'mongo', '>= 1.7.0'
+  gem 'bson_ext', '>= 1.7.0'
 end
 
 group :web do
-  gem 'sinatra', '>= 1.0.0'
+  gem 'sinatra', '>= 1.3.3'
   gem 'shotgun', '>= 0.9'
-  gem 'unicorn', '>= 4.0.0'
+  gem 'unicorn', '>= 4.4.0'
 
   gem 'coffee-script', '>= 2.2'
-  gem 'sass', '>= 3.1.0'
-  gem 'therubyracer', '>= 0.9.2'
+  gem 'sass', '>= 3.2.1'
+  gem 'therubyracer', '>= 0.10.2'
 end
