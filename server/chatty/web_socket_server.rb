@@ -1,4 +1,5 @@
 require 'em-websocket'
+require 'English'
 require 'json'
 
 # :nodoc: namespace
@@ -18,7 +19,7 @@ class WebSocketServer
   end
 
   def run
-    @log.info "Listening on #{host} port #{port}"
+    @log.info "Server PID #{$PID}, listening on #{host} port #{port}"
     EventMachine::WebSocket.start :host => host, :port => port do |ws|
       session = Session.new ws, @nexus
       ws.onopen { session.connected ws.request['query'] }
