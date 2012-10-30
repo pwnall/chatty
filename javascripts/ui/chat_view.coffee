@@ -57,14 +57,23 @@ class ChatView
         @appendEvent(model.getEvent(eventId))
 
   appendEvent: (event) ->
+    nameColor = Color('#' + (event.name_color || '000000'))
+    if nameColor.saturation() == 0
+      borderColor = Color(nameColor.hslString()).lightness(90)
+      bgColor = Color(nameColor.hslString()).lightness(99)
+    else
+      borderColor = Color(nameColor.hslString()).lightness(90).saturation(50)
+      bgColor = Color(nameColor.hslString()).lightness(99).saturation(50)
+
     $dom = $('<li><span class="time" /><span class="author" /></li>')
+    $dom.css('border-color', borderColor.hexString()).
+         css('background-color', bgColor.hexString())
     time = new Date event.server_ts * 1000
     timeString = [time.getHours(), ':', Math.floor(time.getMinutes() / 10),
                   time.getMinutes() % 10].join ''
     $dom.attr 'data-id', event.id
     $('.time', $dom).text timeString
-    $('.author', $dom).text event.name
-    $('.author', $dom).css 'color', event.name_color || '000000'
+    $('.author', $dom).text(event.name).css 'color', nameColor.hexString()
     switch event.type
       when 'text'
         $dom.append @messageDom(event.text)
