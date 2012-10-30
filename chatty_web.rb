@@ -27,8 +27,8 @@ class ChattyWeb < Sinatra::Application
 
   # Chat HTML.
   post '/chat' do
-    name = params[:name] && CGI.escape(params[:name])
-    room = params[:room] && CGI.escape(params[:room])
+    name = params[:name] && CGI.escape(params[:name].strip)
+    room = params[:room] && CGI.escape(params[:room].strip)
     server = request.host
     port = ENV['PORT'] ? ENV['PORT'].to_i + 100 : 9494
     @chat_url = "ws://#{server}:#{port}/chat?room=#{room}&name=#{name}"
