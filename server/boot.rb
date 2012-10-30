@@ -17,6 +17,7 @@ end
 EventMachine.run do
   # Set up the components.
   log = Logger.new STDERR
+  log.level = ENV['DEBUG'] ? Logger::DEBUG : Logger::INFO
   db = EventMachine::Mongo::Connection.new('localhost').db('chatty')
   nexus = Chatty::Nexus.new db, log
   ws_server = Chatty::WebSocketServer.new nexus, log
