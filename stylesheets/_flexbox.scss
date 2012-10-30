@@ -1,57 +1,27 @@
 // Core flexbox declaration.
 @mixin flexbox {
-  display: -moz-box;
-  display: -webkit-box;
-  display: box;
-  
-  -moz-box-align: stretch;
-  -webkit-box-align: stretch;
-  box-align: stretch;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: flex;
 
-  -moz-box-direction: normal;
-  -webkit-box-direction: normal;
-  box-direction: normal;
+  -webkit-align-items: stretch;
+  -moz-align-items: stretch;
+  align-items: stretch;
 }
 
 // Flexbox that lays its children horizontally.
 @mixin horizontal-flexbox {
   @include flexbox;
-  -moz-box-orient: horizontal;
-  -webkit-box-orient: horizontal;
-  box-orient: horizontal;
+  -webkit-flex-direction: row;
+  -moz-flex-direction: row;
+  flex-direction: row;
 }
 
 // Flexbox that lays its children vertically.
 @mixin vertical-flexbox {
   @include flexbox;
-  -moz-box-orient: vertical;
-  -webkit-box-orient: vertical;
-  box-orient: vertical;
+  -webkit-flex-direction: column;
+  -moz-flex-direction: column;
+  flex-direction: column;
 }
 
-// Makes a flexbox child expand to fill the available space.
-@mixin flexbox-rubber-child {
-  -moz-box-flex: 1.0;
-  -webkit-box-flex: 1.0;
-  box-flex: 1.0;
-}
-
-// Pushes all the flexbox's children to the right / bottom of the box.
-//
-// Might be useful for displaying multiple chat windows right-to-left.
-@mixin flexbox-pack-end {
-  -moz-box-pack: end;
-  -webkit-box-pack: end;
-  box-pack: end;
-}
-
-// Displays a flexbox's children in reverse order, from the right / bottom.
-//
-// Might be useful for displaying multiple chat windows right-to-left.
-@mixin flexbox-reverse {
-  @include flexbox-pack-end;
-  
-  -moz-box-direction: reverse;
-  -webkit-box-direction: reverse;
-  box-direction: reverse;
-}

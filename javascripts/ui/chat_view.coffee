@@ -15,26 +15,26 @@ class ChatView
     @$box.click (event) =>
       @$message.focus()
       event.preventDefault()
-      
+
     @desktop_notifications = new DesktopNotifications box, @$message
-  
+
   onKeyDown: (event) ->
     if event.keyCode is 13 and !event.shiftKey
       event.preventDefault()
       text = @$message.val()
       @$message.val ''
       @onMessageSubmission text
-  
+
   enableComposer: ->
     @$message.attr('disabled', false)
-  
+
   disableComposer: ->
     @message.attr('disabled', true)
-  
+
   showError: (message) ->
     @setStatusClass 'error'
     @$status.text ':)'
-    
+
   showSuccess: (message) ->
     @setStatusClass 'win'
     @$status.text message
@@ -55,7 +55,7 @@ class ChatView
     else
       for eventId in [(last + 1)..model.lastEventId]
         @appendEvent(model.getEvent(eventId))
-    
+
   appendEvent: (event) ->
     $dom = $('<li><span class="time" /><span class="author" /></li>')
     time = new Date event.server_ts * 1000
@@ -76,15 +76,14 @@ class ChatView
       $('.author', $dom).addClass 'delayed'
       $dom.attr 'title', 'This message was delayed by the Internet. ' +
                          'It may be out of context.'
-    @$history.append $dom
-    
-    setTimeout (=> @$history[0].scrollTop = @$history[0].scrollHeight), 10
-    @desktop_notifications.serverEvent event 
-  
+    @$history.prepend $dom
+
+    @desktop_notifications.serverEvent event
+
   lastEventId: ->
     attr = $('li:last', @$history).attr('data-id')
     if attr then parseInt(attr) else null
-  
+
   messageDom: (text) ->
     $dom = $('<span class="message" />')
     tokens = @emoticons.parseText text

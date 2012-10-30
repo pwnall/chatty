@@ -11,7 +11,7 @@ Get Ruby and Mongo.
 
 ```bash
 sudo apt-get install ruby-full
-sudo apt-get install mongodb
+sudo apt-get install mongodb mongodb-server
 ```
 
 ### Fedora

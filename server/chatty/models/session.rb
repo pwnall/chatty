@@ -7,7 +7,7 @@ module Chatty
 class Session
   attr_reader :user
   attr_reader :room
-  
+
   def initialize(web_socket, nexus)
     @ws = web_socket
     @nexus = nexus
@@ -15,7 +15,7 @@ class Session
     @room = nil
     @nonces = Set.new
   end
-  
+
   # Called after the WebSocket handshake completes.
   def connected(query)
     user_name = query['name']
@@ -32,7 +32,7 @@ class Session
       @ws.close_websocket
     end
   end
-  
+
   # Called when the client closes the WebSocket.
   def closed
     if @user && @room
@@ -40,14 +40,14 @@ class Session
       @room = nil
     end
   end
-  
+
   # Called when the client sends some data.
   def received(message)
     if message.respond_to?(:encoding) && message.encoding != 'UTF-8'
       message.force_encoding 'UTF-8'
     end
     data = JSON.parse message, :symbolize_names => true
-    
+
     case data[:type]
     when 'text'
       return if @nonces.include?(data[:nonce])
@@ -58,11 +58,11 @@ class Session
       sync_events
     end
   end
-  
+
   # Transmits any events that the client might not know about.
   def sync_events
     events = @last_event_id ? @room.events_after(@last_event_id) :
-                              @room.recent_events(25)
+                              @room.recent_events(512)
     return if events.empty?
     respond_recent_events events
   end
@@ -74,7 +74,7 @@ class Session
   #            events in the session's room
   def respond_recent_events(events)
     return if events.empty?
-    
+
     last_id = events.last[:id]
     respond :last_event_id => last_id, :events => events
     @last_event_id = last_id

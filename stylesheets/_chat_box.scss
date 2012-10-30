@@ -7,12 +7,13 @@
   $message-font-size: 11pt;
 
   @include vertical-flexbox;
-  
+  height: 100%;
+
   .title {
     background: $header-color;
     @include border-radius-top(4px);
     padding: 3px 3px 1px;
-    
+
     color: hsl(0, 0%, 100%);
     font-size: 13pt;
     font-weight: bold;
@@ -25,7 +26,7 @@
   font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans",
                sans-serif;
   font-size: $message-font-size;
-  
+
   .history, .composer, .notification-area {
     border-left: 1px solid $border-color;
     border-right: 1px solid $border-color;
@@ -34,15 +35,60 @@
     padding-bottom: 2px;
   }
 
-  .history {  
-    @include flexbox-rubber-child;
-    
-    @include vertical-flexbox;
-    @include flexbox-pack-end;
-    
+  .composer {
+    padding-top: 2px;
+
+    .message {
+      border: 1px solid $composer-color;
+      margin: 0;
+
+      font-family: inherit;
+      font-size: inherit;
+      line-height: 1.2em;
+
+      @include border-box-sizing;
+      width: 100%;
+      resize: vertical;
+      overflow: auto;
+      min-height: (4 * 1.2 * $message-font-size);
+      max-height: 80%;
+    }
+  }
+
+  .notification-area {
+    border-bottom: 1px solid $border-color;
+
+    .desktop-notification-prompt {
+      text-align: center;
+      &.hidden {
+        display: none;
+      }
+    }
+    .status-bar {
+      color: hsl(0%, 0%, 25%);
+      text-align: center;
+      font-size: 10pt;
+      height: 1.2em;
+    }
+    .status-bar.info {
+      color: hsl(132, 70%, 32%);
+    }
+    .status-bar.error {
+      color: hsl(0, 100%, 44%);
+    }
+  }
+
+  .history {
     padding-top: 2px;
     overflow: auto;
-    
+    overflow-x: visible;
+    overflow-y: scroll;
+
+    -webkit-flex: 1;
+    -moz-flex: 1;
+    flex: 1;
+    min-height: 0;
+
     li {
       @include border-radius(2px);
       border: 1px solid $message-border-color;
@@ -51,7 +97,7 @@
 
       font-weight: normal;
     }
-    
+
     .time {
       display: inline-block;
       padding: 0 2px 0 0;
@@ -70,48 +116,6 @@
     }
     .delayed {
       color: hsl(0%, 100%, 25%);
-    }
-  }
-  
-  .notification-area {
-    .desktop-notification-prompt {
-      text-align: center;
-      
-      &.hidden {
-        display: none;
-      }
-    }
-    .status-bar {
-      color: hsl(0%, 0%, 25%);
-      text-align: center;
-      font-size: 10pt;
-      height: 1.2em;
-    }
-    .status-bar.info {
-      color: hsl(132, 70%, 32%);
-    }
-    .status-bar.error {
-      color: hsl(0, 100%, 44%);
-    }
-  }
-  
-  .composer {
-    border-bottom: 1px solid $border-color;
-
-    .message {
-      border: 1px solid $composer-color;
-      margin: 0;
-      
-      font-family: inherit;
-      font-size: inherit;
-      line-height: 1.2em;
-      
-      @include border-box-sizing;
-      width: 100%;
-      resize: vertical;
-      overflow: auto;
-      min-height: (4 * 1.2 * $message-font-size);
-      max-height: 80%;
     }
   }
 }
