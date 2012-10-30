@@ -61,3 +61,9 @@ For production use, create a service.
 foreman export systemd /etc/systemd/system --procfile Procfile.prod --user $USER
 foreman export upstart /etc/init --procfile Procfile.prod --user $USER
 ```
+
+
+## Credits
+
+The Flash shim that provides WebSocket support to Internet Explorer was sourced
+from [the web-socket-js project](https://github.com/gimite/web-socket-js).
