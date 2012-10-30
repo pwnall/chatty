@@ -58,6 +58,6 @@ foreman start
 For production use, create a service.
 
 ```bash
-foreman export systemd --procfile Procfile.prod
-foreman export upstart --procfile Procfile.prod
+foreman export systemd /etc/systemd/system --procfile Procfile.prod --user $USER
+foreman export upstart /etc/init --procfile Procfile.prod --user $USER
 ```
