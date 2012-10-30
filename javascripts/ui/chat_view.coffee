@@ -64,6 +64,7 @@ class ChatView
     $dom.attr 'data-id', event.id
     $('.time', $dom).text timeString
     $('.author', $dom).text event.name
+    $('.author', $dom).css 'color', event.name_color || '000000'
     switch event.type
       when 'text'
         $dom.append @messageDom(event.text)

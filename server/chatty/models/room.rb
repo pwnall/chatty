@@ -7,7 +7,7 @@ module Chatty
 # never be two Room instances with the same name, in the whole system.
 class Room
   attr_reader :name
-  
+
   # Pulls the room with the given name from the database, or creates a new room.
   #
   # Args:
@@ -18,7 +18,7 @@ class Room
   # likely after the method returns.
   def self.named(name, db, &block)
     room_history = db.collection('room_history')
-    
+
     # Always load 2 history fragments, so we have enough history even if the
     # newest fragment is almost empty.
     cursor = room_history.find({:room_name => name},
@@ -35,25 +35,27 @@ class Room
   def ack_new_session(session, is_first_session)
     user = session.user
     @users[user.name] ||= user
-      
-    event :type => 'join', :name => user.name, :session2 => !is_first_session
+
+    event :type => 'join', :name => user.name, :session2 => !is_first_session,
+          :name_color => session.name_color
     nil
   end
-  
+
   def ack_closed_session(session, is_last_session)
     user = session.user
     return nil unless @users[user.name]  # User already removed from the room.
     @users.delete user.name if is_last_session
 
-    event :type => 'part', :name => user.name, :session2 => !is_last_session
+    event :type => 'part', :name => user.name, :session2 => !is_last_session,
+          :name_color => session.name_color
     nil
   end
-  
-  def message(user, text, client_timestamp)
+
+  def message(user, text, name_color, client_timestamp)
     event :type => 'text', :name => user.name, :text => text,
-          :client_ts => client_timestamp
+          :name_color => name_color, :client_ts => client_timestamp
   end
-  
+
   def events_after(last_known_id)
     events = []
     i = 1
@@ -63,12 +65,12 @@ class Room
     end
     events.reverse
   end
-  
+
   def recent_events(count)
     length = [count, @events.length].min
     @events[-length, length]
   end
-  
+
   # Private constructor. Use Room::named instead.
   #
   # Args:
@@ -95,11 +97,11 @@ class Room
     else
       @history_length = 0
       @history_id = BSON::ObjectId.new
-    end      
+    end
     @users = {}
   end
   private :initialize
-  
+
   # Saves and broadcasts an event that happened in the chat room.
   #
   # This method is called internally by methods such as add_user and message. It
@@ -116,7 +118,7 @@ class Room
     @next_event_id += 1
     event = data.merge :id => id, :server_ts => Time.now.to_f
     @events << event
-    
+
     # Write the event to persistent storage.
     if @history_length == 1_000
       @history_length = 0

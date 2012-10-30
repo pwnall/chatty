@@ -5,7 +5,7 @@ $ ->
       view = new ChatView box: element, emoticons: emoticons
       controller = new ChatController view, $(element).attr('data-server')
       view.showInfo 'connecting'
-      
+
       # Debugging convenience.
       window.controller = controller
-      
+

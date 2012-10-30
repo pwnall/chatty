@@ -7,12 +7,14 @@ module Chatty
 class Session
   attr_reader :user
   attr_reader :room
+  attr_reader :name_color
 
   def initialize(web_socket, nexus)
     @ws = web_socket
     @nexus = nexus
     @user = nil
     @room = nil
+    @name_color = nil
     @nonces = Set.new
   end
 
@@ -20,6 +22,7 @@ class Session
   def connected(query)
     user_name = query['name']
     room_name = query['room']
+    @name_color = query['name_color'] || '000000'
     if user_name && room_name
       @nexus.user_named user_name do |user|
         @user = user
@@ -52,7 +55,7 @@ class Session
     when 'text'
       return if @nonces.include?(data[:nonce])
       @nonces << data[:nonce]
-      room.message @user, data[:text], data[:client_ts]
+      room.message @user, data[:text], @name_color, data[:client_ts]
     when 'sync'
       @last_event_id = data[:last_event_id].to_i
       sync_events
