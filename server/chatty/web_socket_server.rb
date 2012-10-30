@@ -6,9 +6,9 @@ require 'json'
 module Chatty
 
 class WebSocketServer
-  def initialize(nexus, log)
+  def initialize(nexus)
     @nexus = nexus
-    @log = log
+    @log = nexus.log
   end
 
   def host
@@ -31,6 +31,9 @@ class WebSocketServer
         session.closed
       end
       ws.onmessage { |m| session.received m }
+      ws.onping do |m|
+        @log.debug "WebSocket ping"
+      end
     end
   end
 end  # class Chatty::WebSocketServer

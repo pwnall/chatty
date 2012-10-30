@@ -23,6 +23,6 @@ group :web do
   gem 'unicorn', '>= 4.4.0'
 
   gem 'coffee-script', '>= 2.2'
-  gem 'sass', '>= 3.2.1'
+  gem 'compass', '>= 0.12.2'
   gem 'therubyracer', '>= 0.10.2'
 end

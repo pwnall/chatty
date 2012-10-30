@@ -20,7 +20,7 @@ EventMachine.run do
   log.level = ENV['DEBUG'] ? Logger::DEBUG : Logger::INFO
   db = EventMachine::Mongo::Connection.new('localhost').db('chatty')
   nexus = Chatty::Nexus.new db, log
-  ws_server = Chatty::WebSocketServer.new nexus, log
+  ws_server = Chatty::WebSocketServer.new nexus
 
   # Event loop.
   ws_server.run

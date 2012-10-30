@@ -1,0 +1,54 @@
+.login-box {
+  $border-color: hsl(240deg, 0%, 90%);
+  $button-color: hsl(240deg, 0%, 50%);
+
+  margin: 5px auto 0 auto;
+  padding: 0;
+  width: 300px;
+
+
+  .title {
+    font-size: 16pt;
+    font-weight: bold;
+    line-height: 1.2;
+    margin: 0;
+    padding: 0 0 0.5em 0;
+    font-family: "HelveticaNeue-Light", "Helvetica Neue Light",
+        "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+    text-align: center;
+  }
+
+  .fields {
+    padding: 0.5em 0.5em 0 0.5em;
+    display: table;
+    width: 100%;
+  }
+  .field {
+    display: table-row;
+    label, input {
+      display: table-cell;
+    }
+    label {
+      min-width: 4em;
+    }
+    input, select {
+      @include border-box-sizing;
+      width: 100%;
+    }
+    input {
+      @include pwnplus-text-field($border-color);
+    }
+    select {
+      @include pwnplus-select-field($border-color);
+    }
+  }
+  button {
+    @include pwnplus-subdued-button($button-color);
+  }
+
+  .action {
+    display: block;
+    text-align: center;
+    padding: 0.4em 0.5em 0.4em 0.5em;
+  }
+}

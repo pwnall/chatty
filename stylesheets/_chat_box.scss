@@ -1,7 +1,6 @@
 .chat-box {
-  $header-color: hsl(0, 0%, 40%);
   $active-header-color: hsl(0, 0%, 40%);
-  $border-color: hsl(0, 0%, 0%);
+  $border-color: hsl(0, 0%, 80%);
   $message-border-color: hsl(0, 0%, 85%);
   $composer-color: hsl(0, 0%, 50%);
   $message-font-size: 11pt;
@@ -9,15 +8,17 @@
   @include vertical-flexbox;
   height: 100%;
 
-  .title {
-    background: $header-color;
-    @include border-radius-top(4px);
-    padding: 3px 3px 1px;
+  border: 1px solid $border-color;
+  @include border-radius-top(4px);
 
-    color: hsl(0, 0%, 100%);
-    font-size: 13pt;
+  .title {
+    padding: 0 0.2em;
+
+    font-size: 16pt;
     font-weight: bold;
-    font-family: Tahoma, sans-serif;
+    font-family: "HelveticaNeue-Light", "Helvetica Neue Light",
+        "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+    line-height: 1.2;
   }
   &.notification {
     background: $active-header-color;
@@ -28,8 +29,6 @@
   font-size: $message-font-size;
 
   .history, .composer, .notification-area {
-    border-left: 1px solid $border-color;
-    border-right: 1px solid $border-color;
     padding-left: 2px;
     padding-right: 2px;
     padding-bottom: 2px;

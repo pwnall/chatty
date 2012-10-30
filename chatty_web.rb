@@ -3,6 +3,7 @@ require 'bundler'
 Bundler.setup :default, :web
 
 require 'cgi'
+require 'compass'
 require 'sinatra'
 
 class ChattyWeb < Sinatra::Application
@@ -43,5 +44,7 @@ class ChattyWeb < Sinatra::Application
   end
 
   # Chat CSS.
-  get('/application.css') { scss :"stylesheets/application" }
+  get('/application.css') do
+    scss :"stylesheets/application", Compass.sass_engine_options
+  end
 end

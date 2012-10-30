@@ -57,6 +57,9 @@ class Nexus
     end
     nil
   end
+
+  # The Logger instance used by this server.
+  attr_reader :log
 end  # class Chatty::Nexus
 
 end  # namespace Chatty
