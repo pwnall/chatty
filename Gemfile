@@ -1,5 +1,6 @@
 source :rubygems
 
+gem 'foreman', '>= 0.60.2'
 gem 'json', '>= 1.7.5', :platforms => [:ruby_18]
 gem 'nokogiri', '>= 1.5.5'
 

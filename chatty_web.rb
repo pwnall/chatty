@@ -30,7 +30,7 @@ class ChattyWeb < Sinatra::Application
     name = params[:name] && CGI.escape(params[:name])
     room = params[:room] && CGI.escape(params[:room])
     server = request.host
-    port = 9494
+    port = ENV['PORT'] ? ENV['PORT'].to_i + 100 : 9494
     @chat_url = "ws://#{server}:#{port}/chat?room=#{room}&name=#{name}"
     erb :"views/chat"
   end

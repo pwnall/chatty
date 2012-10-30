@@ -52,13 +52,12 @@ bundle exec server/db_schema.rb
 Start up the web server.
 
 ```bash
-bundle exec shotgun config.ru
-nohup bundle exec unicorn config.ru > web.log &
+foreman start
 ```
 
-Start up the chat server.
+For production use, create a service.
 
 ```bash
-bundle exec server/boot.rb
-nohup bundle exec server/boot.rb > server.log &
+foreman export systemd --procfile Procfile.prod
+foreman export upstart --procfile Procfile.prod
 ```
