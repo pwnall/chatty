@@ -29,10 +29,10 @@ class ChatView
       @onMessageSubmission text
 
   enableComposer: ->
-    @$message.attr('disabled', false)
+    @$message.removeAttr('disabled', false)
 
   disableComposer: ->
-    @message.attr('disabled', true)
+    @$message.attr('disabled', true)
 
   showError: (message) ->
     @setStatusClass 'error'
@@ -61,8 +61,8 @@ class ChatView
 
   appendEvent: (event) ->
     cssClass = @cssClassFor event
-    $dom = $("<li class=\"#{cssClass}\"><span class=\"time\" />" +
-             "<span class=\"author\" /></li>")
+    $dom = $("<li class=\"#{cssClass}\"><span class=\"time\"></span>" +
+             "<span class=\"author\"></span></li>")
     time = new Date event.server_ts * 1000
     timeString = [time.getHours(), ':', Math.floor(time.getMinutes() / 10),
                   time.getMinutes() % 10].join ''
@@ -114,7 +114,7 @@ class ChatView
 
 
   lastEventId: ->
-    attr = $('li:last', @$history).attr('data-id')
+    attr = $('li:last-child', @$history).attr('data-id')
     if attr then parseInt(attr) else null
 
   messageDom: (text) ->
