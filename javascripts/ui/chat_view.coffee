@@ -114,7 +114,7 @@ class ChatView
 
 
   lastEventId: ->
-    attr = $('li:last-child', @$history).attr('data-id')
+    attr = $('li:first-child', @$history).attr('data-id')
     if attr then parseInt(attr) else null
 
   messageDom: (text) ->
