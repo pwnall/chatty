@@ -1,7 +1,6 @@
 .chat-box {
   $active-header-color: hsl(0, 0%, 40%);
   $border-color: hsl(0, 0%, 80%);
-  $message-border-color: hsl(0, 0%, 85%);
   $composer-color: hsl(0, 0%, 50%);
   $message-font-size: 11pt;
 
@@ -90,7 +89,8 @@
 
     li {
       @include border-radius(2px);
-      border: 1px solid $message-border-color;
+      border-width: 1px;
+      border-style: solid;
       padding: 2px 1px;
       margin: 2px 0;
 
@@ -106,7 +106,6 @@
     .author {
       display: inline-block;
       padding: 0 4px 0 0;
-      color: hsl(0%, 0%, 35%);
       font-size: 10pt;
     }
     .event {
