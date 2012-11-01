@@ -8,7 +8,7 @@ class PingController
     @pongTimer = null
     @pongNonce = null
 
-    @pingInterval = 10
+    @pingInterval = 30
     @roundTrip = 20.0
 
   resetTimer: ->
