@@ -36,7 +36,7 @@ class ChatView
 
   showError: (message) ->
     @setStatusClass 'error'
-    @$status.text ':)'
+    @$status.text message
 
   showSuccess: (message) ->
     @setStatusClass 'win'

@@ -2,24 +2,45 @@
 class ChatController
   constructor: (@view, @wsUri) ->
     @model = new ChatModel
-    view.onMessageSubmission = (text) => @submitMessage text
+    @ws = null
+    @pingController = new PingController this
+    @view.onMessageSubmission = (text) => @submitMessage text
     @connect()
 
   connect: ->
+    @disconnect()
     @ws = new WebSocket(@wsUri)
     @ws.onclose = => @onSocketClose
     @ws.onerror = (error) => @onSocketEror error
     @ws.onmessage = (event) => @onMessage JSON.parse(event.data)
 
+    @view.showInfo 'connecting'
+    @pingController.resetTimer()
+
+  disconnect: ->
+    @pingController.disableTimer()
+    return if @ws is null
+
+    @ws.close()
+    # Disconnect the event handlers so we don't get spurious events.
+    @ws.onmessage = null
+    @ws.onerror = null
+    @ws.onclose = null
+    @ws = null
+
   onSocketClose: ->
+    @disconnect()
     @view.disableComposer()
-    @view.showInfo 'disconnected'
+    @view.showError 'disconnected'
 
   onSocketError: (errorMessage) ->
+    @disconnect()
     @view.disableComposer()
-    @view.wsError errorMessage
-    setTimeout (=> @connect), 1000
+    @view.showError errorMessage
+    setTimeout (=> @connect()), 5000
 
+  onPingTimeout: ->
+    @onSocketError 'network issues'
 
   onMessage: (data) ->
     @view.enableComposer()
@@ -27,6 +48,9 @@ class ChatController
     if data.events
       @model.addEvent(event) for event in data.events
       @view.update @model
+    if data.pong
+      @pingController.onPong data.pong
+    @pingController.resetTimer()
 
   submitMessage: (text) ->
     @socketSend

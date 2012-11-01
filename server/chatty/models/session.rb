@@ -59,6 +59,8 @@ class Session
     when 'sync'
       @last_event_id = data[:last_event_id].to_i
       sync_events
+    when 'ping'
+      respond pong: { nonce: data[:nonce], client_ts: data[:client_ts] }
     end
   end
 
