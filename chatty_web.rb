@@ -1,7 +1,3 @@
-#!/usr/bin/env ruby
-require 'bundler'
-Bundler.setup :default, :web
-
 require 'cgi'
 require 'compass'
 require 'sinatra'

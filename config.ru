@@ -1,3 +1,7 @@
-# This file is used by Rack-based servers to start the application.
+require 'bundler'
+Bundler.setup :default, :web
+
 require './chatty_web.rb'
+
+use Rack::Deflater
 run ChattyWeb
