@@ -9,6 +9,8 @@ class ChatView
     @$box = $(box)
 
     @$form = $('.composer', box)
+    @$sendButton = $('.send-button', box)
+    @$avButton = $('.av-button', box)
     @$history = $('.history', box)
     @$message = $('.composer .message', box)
     @$message.val ''
@@ -17,52 +19,40 @@ class ChatView
     @$title = $('.room-title', box)
     @$users = $('.user-list', box)
 
-    @$networkWin = $('.notification-bar .network-ok', box)
-    @$networkError = $('.notification-bar .network-error', box)
-    @$avLive = $('.notification-bar .av-live', box)
-    @$avError = $('.notification-bar .av-error', box)
-
     @$form.keydown (event) => @onKeyDown event
+    @$sendButton.click (event) => @onSendClick event
+    @$avButton.click (event) => @onAvClick event
     @$box.click (event) =>
       @$message.focus()
       event.preventDefault()
 
-    @desktop_notifications = new DesktopNotifications box, @$message
+    @statusView = new StatusView box
+    @desktopNotifications = new DesktopNotifications box, @$message
 
   onKeyDown: (event) ->
     if event.keyCode is 13 and !event.shiftKey
       event.preventDefault()
-      text = @$message.val()
-      @$message.val ''
-      @onMessageSubmission text
+      @onSendClick event
+
+  onSendClick: (event) ->
+    text = @$message.val()
+    @$message.val ''
+    @onMessageSubmission text
+
+  onAvClick: (event) ->
+    null  # RtcController overrides this hook
 
   enableComposer: ->
-    @$message.removeAttr('disabled', false)
+    @$message.removeAttr 'disabled'
 
   disableComposer: ->
-    @$message.attr('disabled', true)
+    @$message.attr 'disabled', true
 
-  showNetworkError: (message) ->
-    @$networkWin.removeClass 'visible'
-    @$networkError.addClass 'visible'
-    @$networkError.attr 'title', message || 'Network Malfunction'
+  enableAvButton: ->
+    @$avButton.removeClass 'hidden'
 
-  showNetworkWin: (message) ->
-    @$networkError.removeClass 'visible'
-    @$networkWin.addClass 'visible'
-    @$networkWin.attr 'title', message || 'Connected'
-
-  showAvError: (message) ->
-    console.log message
-    @$avLive.removeClass 'visible'
-    @$avError.addClass 'visible'
-    @$avError.attr 'title', message || 'Video Malfunction'
-
-  updateAvLiveStatus: (isAvLive) ->
-    if isAvLive
-      @$avLive.addClass 'visible'
-    else
-      @$avLive.removeClass 'visible'
+  disableAvButton: ->
+    @$message.addClass 'hidden'
 
   update: (model) ->
     last = @lastEventId()
@@ -114,7 +104,7 @@ class ChatView
                          'It may be out of context.'
     @$history.prepend $dom
 
-    @desktop_notifications.serverEvent event
+    @desktopNotifications.serverEvent event
 
   cssClassFor: (event) ->
     key = event.name_color || '000000'

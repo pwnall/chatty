@@ -1,0 +1,33 @@
+.chat-box {
+  .status-bar {
+    display: inline-block;
+    > li {
+      display: inline-block;
+      visibility: hidden;
+      min-width: 1.2em;
+      text-align: center;
+
+      &.visible {
+        visibility: visible
+      }
+      &.desktop {
+        color: hsl(0, 100%, 25%);
+        &:hover {
+          text-shadow: 1px 1px 0.05em hsl(0, 100%, 5%);
+        }
+        &:active {
+          text-shadow: none;
+        }
+      }
+      &.network-error {
+        color: hsl(0, 100%, 25%);
+      }
+      &.network-ok, &.av-live {
+        color: hsl(120, 35%, 35%);
+      }
+      &.av-error {
+        color: hsl(30, 100%, 35%);
+      }
+    }
+  }
+}

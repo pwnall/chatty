@@ -1,11 +1,12 @@
 # Interfaces with the WS chat server.
 class ChatController
-  constructor: (@view, @wsUri) ->
+  constructor: (@chatView, @wsUri) ->
     @model = new ChatModel
     @ws = null
     @pingController = new PingController this
     @rtcController = new RtcController this
-    @view.onMessageSubmission = (text) => @submitMessage text
+    @chatView.onMessageSubmission = (text) => @submitMessage text
+    @statusView = @chatView.statusView
     @connect()
 
   connect: ->
@@ -16,7 +17,7 @@ class ChatController
     @ws.onopen = => @onSocketOpen()
     @ws.onmessage = (event) => @onMessage JSON.parse(event.data)
 
-    @view.showNetworkError 'Connecting'
+    @statusView.showNetworkError 'Connecting'
     @pingController.resetTimer()
 
   disconnect: ->
@@ -33,22 +34,22 @@ class ChatController
   onSocketOpen: ->
     return unless @ws
     @sendListQuery()
-    @view.enableComposer()
-    @view.showNetworkWin 'Connected'
+    @chatView.enableComposer()
+    @statusView.showNetworkWin 'Connected'
 
   onSocketClose: ->
     @disconnect()
-    @view.disableComposer()
+    @chatView.disableComposer()
     if @ws
-      @view.showNetworkError 'Server Down'
+      @statusView.showNetworkError 'Server Down'
       setTimeout (=> @connect()), 30000
     else
       @onSocketError 'Disconnected'
 
   onSocketError: (errorMessage) ->
     @disconnect()
-    @view.disableComposer()
-    @view.showNetworkError errorMessage
+    @chatView.disableComposer()
+    @statusView.showNetworkError errorMessage
     setTimeout (=> @connect()), 5000
 
   onPingTimeout: ->
@@ -57,10 +58,10 @@ class ChatController
   onMessage: (data) ->
     if data.events
       @model.addEvent(event) for event in data.events
-      @view.update @model
+      @chatView.update @model
     if data.list
       @model.addList data.list
-      @view.update @model
+      @chatView.update @model
     if data.pong
       @pingController.onPong data.pong
     @pingController.resetTimer()

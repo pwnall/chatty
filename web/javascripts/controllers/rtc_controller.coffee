@@ -1,11 +1,20 @@
 # WebRTC-assisted A/V chat.
 class RtcController
   constructor: (@chatController) ->
-    @chatView = @chatController.view
+    @chatView = @chatController.chatView
+    @chatView.onAvClick = (event) => @onAvClick event
     @rtc = @rtcConnection()
     @supported = @computeSupported()
-    unless @supported
+    if @supported
+      @chatView.enableAvButton()
+    else
+      @chatView.disableAvButton()
       @chatView.showAvError 'Your browser does not support video chat'
+
+  onAvClick: (event) ->
+    event.preventDefault()
+    event.stopPropagation()
+    @avInput()
 
   # Checks for getUserMedia support.
   computeSupported: ->
