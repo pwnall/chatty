@@ -4,17 +4,19 @@
 
   margin: 5px auto 0 auto;
   padding: 0;
-  width: 300px;
+  width: 400px;
 
+  font-family: "Source Sans Pro", "Helvetica Neue", Helvetica, Arial,
+               "Lucida Grande", sans-serif;
+  font-size: 24px;
+  font-weight: 300;
 
   .title {
-    font-size: 16pt;
-    font-weight: bold;
+    font-size: 48px;
+    font-weight: 700;
     line-height: 1.2;
     margin: 0;
     padding: 0 0 0.5em 0;
-    font-family: "HelveticaNeue-Light", "Helvetica Neue Light",
-        "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
     text-align: center;
   }
 
@@ -29,7 +31,11 @@
       display: table-cell;
     }
     label {
-      min-width: 4em;
+      width: 1em;
+      i::before {
+        width: 100%;
+        text-align: center;
+      }
     }
     input, select {
       @include border-box-sizing;

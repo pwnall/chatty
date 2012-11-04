@@ -1,10 +1,16 @@
 # WebRTC-assisted A/V chat.
 class RtcController
-  constructor: ->
+  constructor: (@chatController) ->
+    @chatView = @chatController.view
     @rtc = @rtcConnection()
+    @supported = @computeSupported()
+    unless @supported
+      @chatView.showAvError 'Your browser does not support video chat'
 
   # Checks for getUserMedia support.
-  hasAvInput: ->
+  computeSupported: ->
+    return false unless @rtc
+
     # NOTE: the method is more complex than it should be, to match avInput
     if navigator.getUserMedia
       return true
@@ -27,7 +33,7 @@ class RtcController
 
   # Called when the user's A/V inputs are provided to the application.
   onAvInput: (stream) ->
-
+    console.log stream
 
   # Creates an RTCPeerConnection.
   rtcConnection: ->

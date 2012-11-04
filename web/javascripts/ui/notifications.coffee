@@ -5,16 +5,16 @@ class DesktopNotificationsBase
       @configureWebkit()
     # TODO(pwnall): HTML5 spec-compliant engine, when an implementation becomes
     #               available, so we can test against it
-    
+
     @queryPermission()
 
   # Creates and shows a desktop notification.
   #
-  # Returns a 
+  # Returns a
   post: (title, text) ->
     # NOTE: this is a stub, so we give up right away.
     false
-  
+
   # Asks the notification engine if we're allowed to post notifications.
   #
   # Sets the instance variables @prompted (if the user has been prompted to
@@ -25,18 +25,18 @@ class DesktopNotificationsBase
     @prompted = true
     @allowed = false
 
-  # Asks the user to allow us to post desktop notifications.    
+  # Asks the user to allow us to post desktop notifications.
   requestPermission: ->
     # NOTE: this is a stub, so we give up right away.
     false
-    
+
   # Desktop notifications will be served using the WebKit backend.
   configureWebkit: ->
     @backend = window.webkitNotifications
     @post = @webkitPost
     @queryPermission = @webkitQueryPermission
     @requestPermission = @webkitRequestPermission
-  
+
   # WebKit implementation of post.
   webkitPost: (icon, title, text) ->
     post = @backend.createNotification icon, title, text
@@ -55,7 +55,7 @@ class DesktopNotificationsBase
     if permissions is (@backend.PERMISSION_DENIED or 2)
       @prompted = true
       @allowed = false
-      
+
   # WebKit implementation of requestPermission.
   webkitRequestPermission: ->
     @backend.requestPermission => @queryPermission
@@ -69,13 +69,12 @@ class DesktopNotifications extends DesktopNotificationsBase
     @focused = document.hasFocus()
     window.addEventListener 'focus', (=> @onWindowFocus()), true
     window.addEventListener 'blur', (=> @onWindowBlur()), true
-    
+
     unless @prompted
-      $prompt = $('.desktop-notification-prompt', @chatbox)
-      $prompt.removeClass 'hidden'
-      $promptLink = $('.trigger', $prompt)
-      $promptLink.click (event) =>
-        $prompt.addClass 'hidden'
+      $prompt = $('.notification-bar .desktop', @chatbox)
+      $prompt.addClass 'visible'
+      $prompt.click (event) =>
+        $prompt.removeClass 'visible'
         @requestPermission()
         event.preventDefault()
         false
@@ -97,7 +96,7 @@ class DesktopNotifications extends DesktopNotificationsBase
   # Keeps track of the chat window's focus status.
   onWindowBlur: ->
     @focused = false
-    
+
   # Dismisses all notifications when the chat window regains focus.
   onWindowFocus: ->
     @focused = true

@@ -19,21 +19,27 @@
         <h1 class="title">Chat Entrance</h1>
         <section class="fields">
           <p class="field">
-            <label for="login_name">Name</label>
+            <label for="login_name" title="Your Name">
+              <i class="icon-user icon-large"></i>
+            </label>
             <span class="value">
               <input id="login_name" name="name" placeholder="teh_pwnerer"
                      required="required" />
             </span>
           </p>
           <p class="field">
-            <label for="login_room">Room</label>
+            <label for="login_room" title="Chat Room">
+              <i class="icon-comments icon-large"></i>
+            </label>
             <span class="value">
               <input id="login_room" name="room" value="main"
                      required="required" />
             </span>
           </p>
           <p class="field">
-            <label for="name_color">Color</label>
+            <label for="name_color" title="Color">
+              <i class="icon-tint icon-large"></i>
+            </label>
             <select id="name_color" name="name_color" required="required">
               <option value="4F2E17">coffee</option>
               <option value="000000">black</option>
@@ -45,7 +51,10 @@
           </p>
         </section>
         <p class="action">
-          <button type="submit">Sign in</button>
+          <button type="submit">
+            <i class="icon-signin icon-large"></i>
+            Sign in
+          </button>
         </p>
       </form>
     </div>

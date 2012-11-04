@@ -14,10 +14,13 @@ class ChatView
     @$message.val ''
 
     @roomVersion = null
-    @$title = $('.title', box)
+    @$title = $('.room-title', box)
     @$users = $('.user-list', box)
 
-    @$status = $('.status-bar', box)
+    @$networkWin = $('.notification-bar .network-ok', box)
+    @$networkError = $('.notification-bar .network-error', box)
+    @$avLive = $('.notification-bar .av-live', box)
+    @$avError = $('.notification-bar .av-error', box)
 
     @$form.keydown (event) => @onKeyDown event
     @$box.click (event) =>
@@ -39,21 +42,27 @@ class ChatView
   disableComposer: ->
     @$message.attr('disabled', true)
 
-  showError: (message) ->
-    @setStatusClass 'error'
-    @$status.text message
+  showNetworkError: (message) ->
+    @$networkWin.removeClass 'visible'
+    @$networkError.addClass 'visible'
+    @$networkError.attr 'title', message || 'Network Malfunction'
 
-  showSuccess: (message) ->
-    @setStatusClass 'win'
-    @$status.text message
+  showNetworkWin: (message) ->
+    @$networkError.removeClass 'visible'
+    @$networkWin.addClass 'visible'
+    @$networkWin.attr 'title', message || 'Connected'
 
-  showInfo: (message) ->
-    @setStatusClass 'info'
-    @$status.text message
+  showAvError: (message) ->
+    console.log message
+    @$avLive.removeClass 'visible'
+    @$avError.addClass 'visible'
+    @$avError.attr 'title', message || 'Video Malfunction'
 
-  setStatusClass: (klass) ->
-    @$status.removeClass(kklass) for kklass in ['error', 'info', 'win']
-    @$status.addClass klass
+  updateAvLiveStatus: (isAvLive) ->
+    if isAvLive
+      @$avLive.addClass 'visible'
+    else
+      @$avLive.removeClass 'visible'
 
   update: (model) ->
     last = @lastEventId()
@@ -73,7 +82,7 @@ class ChatView
       users.sort (a, b) -> a.name.localeCompare(b.name)
       @$users.empty()
       for userInfo in users
-        $li = $ '<li><span class="name"></li>'
+        $li = $ '<li><i class="icon-user icon-large"></i> <span class="name"></span></li>'
         $('.name', $li).text userInfo.name
         $li.attr 'data-name', userInfo.name
         @$users.append $li
@@ -81,19 +90,23 @@ class ChatView
   appendEvent: (event) ->
     cssClass = @cssClassFor event
     $dom = $("<li class=\"#{cssClass}\"><span class=\"time\"></span>" +
-             "<span class=\"author\"></span></li>")
+             "<i class=\"icon-large\"></i><span class=\"author\"></span></li>")
     time = new Date event.server_ts * 1000
     timeString = [time.getHours(), ':', Math.floor(time.getMinutes() / 10),
                   time.getMinutes() % 10].join ''
     $dom.attr 'data-id', event.id
     $('.author', $dom).text event.name
     $('.time', $dom).text timeString
+    $icon = $('i', $dom)
     switch event.type
       when 'text'
+        $icon.addClass 'icon-comment-alt'
         $dom.append @messageDom(event.text)
       when 'join'
+        $icon.addClass 'icon-signin'
         $dom.append '<span class="event">joined the chat</span>'
       when 'part'
+        $icon.addClass 'icon-signout'
         $dom.append '<span class="event">left the chat</span>'
     if event.client_ts and Math.abs(event.server_ts - event.client_ts) >= 10
       $('.time', $dom).addClass 'delayed'

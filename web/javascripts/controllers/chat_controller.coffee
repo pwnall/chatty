@@ -16,7 +16,7 @@ class ChatController
     @ws.onopen = => @onSocketOpen()
     @ws.onmessage = (event) => @onMessage JSON.parse(event.data)
 
-    @view.showInfo 'connecting'
+    @view.showNetworkError 'Connecting'
     @pingController.resetTimer()
 
   disconnect: ->
@@ -34,21 +34,21 @@ class ChatController
     return unless @ws
     @sendListQuery()
     @view.enableComposer()
-    @view.showInfo 'connected'
+    @view.showNetworkWin 'Connected'
 
   onSocketClose: ->
     @disconnect()
     @view.disableComposer()
     if @ws
-      @view.showError 'server shutdown'
+      @view.showNetworkError 'Server Down'
       setTimeout (=> @connect()), 30000
     else
-      @onSocketError 'disconnected'
+      @onSocketError 'Disconnected'
 
   onSocketError: (errorMessage) ->
     @disconnect()
     @view.disableComposer()
-    @view.showError errorMessage
+    @view.showNetworkError errorMessage
     setTimeout (=> @connect()), 5000
 
   onPingTimeout: ->

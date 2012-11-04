@@ -24,9 +24,31 @@
       <div class="chat-box" data-server="<%= @chat_url %>">
         <style type="text/css" scoped="scoped">
         </style>
-        <p class="title">
-          Chat
-        </p>
+        <section class="title-bar">
+          <ul class="notification-bar">
+            <li class="desktop" title="Enable desktop notifications">
+              <i class="icon-bullhorn"></i>
+            </li>
+            <li class="av-error" title="Video Malfunction">
+              <i class="icon-eye-close"></i>
+            </li>
+            <li class="av-live" title="Webcam Active">
+              <i class="icon-eye"></i>
+            </li>
+            <li class="network-error visible" title="Loading">
+              <i class="icon-bolt"></i>
+            </li>
+            <li class="network-ok" title="Connected">
+              <i class="icon-signal"></i>
+            </li>
+          </ul>
+          <span title="Chat Room">
+            <i class="icon-comments"></i>
+          </span>
+          <span class="room-title">
+            chat
+          </span>
+        </section>
         <ul class="user-list">
 
         </ul>
@@ -35,14 +57,6 @@
                placeholder="Type your message here. Press Enter to send.">
           </textarea>
         </form>
-        <div class="notification-area">
-          <div class="desktop-notification-prompt hidden">
-            <a class="trigger" href="">Enable desktop notifications</a>
-          </div>
-          <div class="status-bar info">
-            loading
-          </div>
-        </div>
         <ul class="history">
 
         </ul>
