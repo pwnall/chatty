@@ -109,8 +109,7 @@ class ChatView
         $icon.addClass 'icon-signout'
         $dom.append '<span class="event">left the chat</span>'
     if event.client_ts and Math.abs(event.server_ts - event.client_ts) >= 10
-      $('.time', $dom).addClass 'delayed'
-      $('.author', $dom).addClass 'delayed'
+      $dom.addClass 'delayed'
       $dom.attr 'title', 'This message was delayed by the Internet. ' +
                          'It may be out of context.'
     @$history.prepend $dom
@@ -127,14 +126,19 @@ class ChatView
     if nameColor.saturation() == 0
       borderColor = Color(nameColor.hslString()).lightness(90)
       bgColor = Color(nameColor.hslString()).lightness(99)
+      iconColor = Color(nameColor.hslString()).lightness(60)
     else
       borderColor = Color(nameColor.hslString()).lightness(90).saturation(50)
       bgColor = Color(nameColor.hslString()).lightness(99).saturation(50)
+      iconColor = Color(nameColor.hslString()).lightness(60).saturation(25)
 
     rule = """
     li.#{className} {
       border-color: #{borderColor.hexString()};
       background-color: #{bgColor.hexString()};
+    }
+    li.#{className} > i {
+      color: #{iconColor.hexString()};
     }
     li.#{className} > span.author {
       color: #{nameColor.hexString()};
