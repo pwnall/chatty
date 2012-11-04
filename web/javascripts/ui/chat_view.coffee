@@ -10,7 +10,6 @@ class ChatView
 
     @$form = $('.composer', box)
     @$sendButton = $('.send-button', box)
-    @$avButton = $('.av-button', box)
     @$history = $('.history', box)
     @$message = $('.composer .message', box)
     @$message.val ''
@@ -21,11 +20,11 @@ class ChatView
 
     @$form.keydown (event) => @onKeyDown event
     @$sendButton.click (event) => @onSendClick event
-    @$avButton.click (event) => @onAvClick event
     @$box.click (event) =>
       @$message.focus()
       event.preventDefault()
 
+    @avView = new AvView box
     @statusView = new StatusView box
     @desktopNotifications = new DesktopNotifications box, @$message
 
@@ -39,20 +38,11 @@ class ChatView
     @$message.val ''
     @onMessageSubmission text
 
-  onAvClick: (event) ->
-    null  # RtcController overrides this hook
-
   enableComposer: ->
     @$message.removeAttr 'disabled'
 
   disableComposer: ->
     @$message.attr 'disabled', true
-
-  enableAvButton: ->
-    @$avButton.removeClass 'hidden'
-
-  disableAvButton: ->
-    @$message.addClass 'hidden'
 
   update: (model) ->
     last = @lastEventId()

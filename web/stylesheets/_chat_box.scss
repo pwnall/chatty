@@ -22,6 +22,77 @@
     font-size: 26px;
     font-weight: 700;
     line-height: 1.2;
+
+    display: table;
+    width: 100%;
+    @include border-box-sizing();
+
+    .title-area {
+      display: table-cell;
+      text-align: left;
+
+      > i {
+        color: hsl(0, 0%, 75%);
+      }
+    }
+    .status-bar {
+      display: table-cell;
+      text-align: right;
+    }
+  }
+
+  .av-container {
+    margin: 0;
+    padding: 0.2em 0.5em 0em 0.5em;
+
+    .av-title {
+      border-top: 1px solid hsl(0, 0%, 95%);
+      font-size: 20px;
+      line-height: 1.6;
+      text-align: center;
+    }
+    .video-section {
+      position: relative;
+      height: 300px;
+      resize: vertical;
+      overflow: hidden;
+    }
+
+    video {
+      margin: 0 auto;
+      display: none;
+
+      width: auto;
+      height: 100%;
+    }
+
+    &.no-remote {
+      video.local {
+        max-width: 100%;
+        max-height: 100%;
+        display: block;
+      }
+    }
+    &.remote {
+      video.remote {
+        max-width: 100%;
+        max-height: 100%;
+        display: block;
+      }
+      video.local {
+        display: block;
+        position: absolute;
+        right: 0;
+        bottom: 0;
+
+        max-width: 33%;
+        height: 33%;
+      }
+    }
+
+    &.hidden {
+      display: none;
+    }
   }
 
   .user-list {
@@ -34,6 +105,10 @@
 
     li {
       border-top: 1px solid hsl(0, 0%, 95%);
+
+      > i {
+        color: hsl(0, 0%, 66%);
+      }
     }
   }
 

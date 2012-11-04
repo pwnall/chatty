@@ -2,14 +2,24 @@
 class RtcController
   constructor: (@chatController) ->
     @chatView = @chatController.chatView
-    @chatView.onAvClick = (event) => @onAvClick event
-    @rtc = @rtcConnection()
-    @supported = @computeSupported()
-    if @supported
-      @chatView.enableAvButton()
-    else
-      @chatView.disableAvButton()
-      @chatView.showAvError 'Your browser does not support video chat'
+    @avView = @chatView.avView
+    @statusView = @chatView.statusView
+    @avView.onAvClick = (event) => @onAvClick event
+
+    @rtcAddStreamHandler = (event) => @onRtcAddStream event
+    @iceCandidateHandler = (event) => @onIceCandidate event
+    @iceChangeHandler = (event) => @onIceChange event
+    @rtcNegotiationHandler = (event) => @onRtcNegotiationNeeded event
+    @rtcOpenHandler = (event) => @onRtcOpen event
+    @rtcRemoveStreamHandler = (event) => @onRtcRemoveStream event
+    @rtcChangeHandler = (event) => @onRtcChange event
+
+    @rtcOfferSuccessHandler = (sdp) => @onRtcOfferSdp sdp
+    @rtcLocalDescriptionSuccessHandler = => @onRtcLocalDescriptionSuccess()
+    @rtcErrorHandler = (errorText) => @onRtcError errorText
+
+
+    @rtcReset()
 
   onAvClick: (event) ->
     event.preventDefault()
@@ -41,19 +51,102 @@ class RtcController
       navigator.mozGetUserMedia media, callback
 
   # Called when the user's A/V inputs are provided to the application.
-  onAvInput: (stream) ->
-    console.log stream
+  onAvInputStream: (stream) ->
+    console.log 'onAvInputStream'
+    @avView.showLocalVideo stream
+    @rtc.addStream stream
+    @rtc.createOffer @rtcOfferSuccessHandler, @rtcErrorHandler
+
+  # Re-initializes the RTC state after an error occurs.
+  rtcReset: ->
+    if @rtc
+      @rtc.onaddstream = null
+      @rtc.onicecandidate = null
+      @rtc.onincechange = null
+      @rtc.onnegotiationneeded = null
+      @rtc.onopen = null
+      @rtc.onremovestream = null
+      @rtc.onstatechange = null
+      @rtc.close()
+
+    @rtc = @rtcConnection()
+    @supported = @computeSupported()
+    if @supported
+      @avView.enableAvButton()
+    else
+      @avView.disableAvButton()
+      @statusView.showAvError 'Your browser does not support video chat'
+
 
   # Creates an RTCPeerConnection.
   rtcConnection: ->
     config = RtcController.rtcConfig()
     if window.RTCPeerConnection
-      return new RTCPeerConnection(config)
-    if window.webkitRTCPeerConnection
-      return new webkitRTCPeerConnection(config)
-    if window.mozRTCPeerConnection
-      return new mozRTCPeerConnection(config)
-    nil
+      rtc = new RTCPeerConnection(config)
+    else if window.webkitRTCPeerConnection
+      rtc = new webkitRTCPeerConnection(config)
+    else if window.mozRTCPeerConnection
+      rtc = new mozRTCPeerConnection(config)
+    else
+      return null
+
+    rtc.onaddstream = @rtcAddStreamHandler
+    rtc.onicecandidate = @iceCandidateHandler
+    rtc.onincechange = @iceChangeHandler
+    rtc.onnegotiationneeded = @rtcNegotiationHandler
+    rtc.onopen = @rtcOpenHandler
+    rtc.onremovestream = @rtcRemoveStreamHandler
+    rtc.onstatechange = @rtcChangeHandler
+    rtc
+
+  # Called when the remote side added a stream to the connection.
+  onRtcAddStream: (event) ->
+    console.log ['addStream', event]
+    @avView.showRemoteVideo event.stream
+
+  # Called when the remote side removed a stream from the connection.
+  onRtcRemoveStream: (event) ->
+    console.log ['removeStream', event]
+    @avView.hideVideo()
+    @rtcReset()
+
+  # Called when ICE has a candidate-something. (incomplete spec)
+  onIceCandidate: (event) ->
+    console.log ['iceCandidate', event]
+
+  # Called when the ICE agent makes some progress. (incomplete spec)
+  onIceChange: (event) ->
+    console.log ['iceChange', event]
+    # if event.type is 'negotiationneeded'
+    #   @onRtcNegotiationNeeded event
+
+  # Called when network changes require an ICE re-negotiation.
+  onRtcNegotiationNeeded: (event) ->
+    console.log ['iceChange', event]
+
+  # Called when something opens. (incomplete spec)
+  onRtcOpen: (event) ->
+    console.log ['rtcOpen', event]
+
+  # Called when the RTC state changes.
+  onRtcChange: (event) ->
+    console.log ['rtcChange', event]
+
+  # Called when RTCPeerConnection.createOffer succeeds.
+  onRtcOfferSdp: (sdp) ->
+    console.log ['rtcOfferSuccess', sdp]
+    @rtc.setLocalDescription sdp, @rtcLocalDescriptionSuccessHandler,
+                             @rtcErrorHandler
+
+  # Called when RTCPeerConnection.setLocalDescription succeeds.
+  onRtcLocalDescriptionSuccess: ->
+    console.log ['rtcLocalDescripionSuccess']
+
+  # Called when a step in the RTC process fails.
+  onRtcError: (errorText) ->
+    @statusView.showAvError errorText
+    @avView.hideVideo()
+    @rtcReset()
 
   # RTCPeerConnection configuration.
   @rtcConfig: ->

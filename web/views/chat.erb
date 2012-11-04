@@ -24,7 +24,14 @@
       <div class="chat-box" data-server="<%= @chat_url %>">
         <style type="text/css" scoped="scoped">
         </style>
+
         <section class="title-bar">
+          <div class="title-area">
+            <i class="icon-comments" title="Chat Room"></i>
+            <span class="room-title">
+              chat
+            </span>
+          </div>
           <ul class="status-bar">
             <li class="desktop" title="Enable desktop notifications">
               <i class="icon-bullhorn"></i>
@@ -42,13 +49,23 @@
               <i class="icon-signal"></i>
             </li>
           </ul>
-          <span title="Chat Room">
-            <i class="icon-comments"></i>
-          </span>
-          <span class="room-title">
-            chat
-          </span>
         </section>
+
+        <section class="av-container hidden">
+          <p class="av-title">
+            <i class="icon-user"></i>
+            <span class="partner-name">loading...</span>
+          </p>
+          <div class="video-section">
+            <video class="local" width="100%" height="100%"
+                   autoplay="autoplay" placeholder="/images/webcam.svg">
+            </video>
+            <video class="remote" width="100%" height="100%"
+                   autoplay="autoplay" placeholder="/images/webcam.svg">
+            </video>
+          </div>
+        </section>
+
         <ul class="user-list">
 
         </ul>
