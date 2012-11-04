@@ -7,12 +7,17 @@ class ChatView
     @cssClasses = {}
 
     @$box = $(box)
+
     @$form = $('.composer', box)
     @$history = $('.history', box)
     @$message = $('.composer .message', box)
-    @$title = $('.title', box)
-    @$status = $('.status-bar', box)
     @$message.val ''
+
+    @roomVersion = null
+    @$title = $('.title', box)
+    @$users = $('.user-list', box)
+
+    @$status = $('.status-bar', box)
 
     @$form.keydown (event) => @onKeyDown event
     @$box.click (event) =>
@@ -55,9 +60,23 @@ class ChatView
     if last is null
       for event in model.getAllEvents()
         @appendEvent(event)
-    else
+    else if last < model.lastEventId
       for eventId in [(last + 1)..model.lastEventId]
         @appendEvent(model.getEvent(eventId))
+
+    if @roomVersion != model.roomInfoVersion()
+      @roomVersion = model.roomInfoVersion()
+      roomInfo = model.getRoomInfo()
+      if roomInfo.title
+        @$title.text roomInfo.title
+      users = roomInfo.users
+      users.sort (a, b) -> a.name.localeCompare(b.name)
+      @$users.empty()
+      for userInfo in users
+        $li = $ '<li><span class="name"></li>'
+        $('.name', $li).text userInfo.name
+        $li.attr 'data-name', userInfo.name
+        @$users.append $li
 
   appendEvent: (event) ->
     cssClass = @cssClassFor event

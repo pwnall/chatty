@@ -11,8 +11,9 @@ class ChatController
   connect: ->
     @disconnect()
     @ws = new WebSocket(@wsUri)
-    @ws.onclose = => @onSocketClose
+    @ws.onclose = => @onSocketClose()
     @ws.onerror = (error) => @onSocketEror error
+    @ws.onopen = => @onSocketOpen()
     @ws.onmessage = (event) => @onMessage JSON.parse(event.data)
 
     @view.showInfo 'connecting'
@@ -29,10 +30,20 @@ class ChatController
     @ws.onclose = null
     @ws = null
 
+  onSocketOpen: ->
+    return unless @ws
+    @sendListQuery()
+    @view.enableComposer()
+    @view.showInfo 'connected'
+
   onSocketClose: ->
     @disconnect()
     @view.disableComposer()
-    @view.showError 'disconnected'
+    if @ws
+      @view.showError 'server shutdown'
+      setTimeout (=> @connect()), 30000
+    else
+      @onSocketError 'disconnected'
 
   onSocketError: (errorMessage) ->
     @disconnect()
@@ -44,10 +55,11 @@ class ChatController
     @onSocketError 'network issues'
 
   onMessage: (data) ->
-    @view.enableComposer()
-    @view.showInfo 'connected'
     if data.events
       @model.addEvent(event) for event in data.events
+      @view.update @model
+    if data.list
+      @model.addList data.list
       @view.update @model
     if data.pong
       @pingController.onPong data.pong
@@ -57,6 +69,9 @@ class ChatController
     @socketSend
       type: 'text', text: text, nonce: @nonce(),
       client_ts: Date.now() / 1000
+
+  sendListQuery: ->
+    @socketSend type: 'list', nonce: @nonce(), client_ts: Date.now() / 1000
 
   socketSend: (data) ->
     @ws.send JSON.stringify(data)

@@ -21,8 +21,8 @@ class Room
 
     # Always load 2 history fragments, so we have enough history even if the
     # newest fragment is almost empty.
-    cursor = room_history.find({:room_name => name},
-        :sort => [:last_event_id, :desc], :limit => 2).to_a
+    cursor = room_history.find({room_name: name},
+                               sort: [:last_event_id, :desc], limit: 2).to_a
     cursor.callback do |histories|
       events = histories.reverse.
                          map { |h| h['events'].map(&:symbolize_keys) }.
@@ -69,6 +69,10 @@ class Room
   def recent_events(count)
     length = [count, @events.length].min
     @events[-length, length]
+  end
+
+  def presence_info
+    @users.map { |name, user| { name: user.name } }
   end
 
   # Private constructor. Use Room::named instead.

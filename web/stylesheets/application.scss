@@ -25,7 +25,10 @@ html, body {
 }
 
 .chat-box {
-  width: 400px;
+  width: 100%;
+  width: -webkit-calc(100% - 1em);
+  width: -moz-calc(100% - 1em);
+  width: calc(100% - 1em);
   height: 100%;
   margin: 0 auto;
 }

@@ -29,6 +29,7 @@ class Session
         @nexus.room_named room_name do |room|
           @room = room
           @user.add_session self
+          respond list: { title: @room.name, presence: @room.presence_info }
         end
       end
     else

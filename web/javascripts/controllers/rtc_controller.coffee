@@ -32,7 +32,6 @@ class RtcController
   # Creates an RTCPeerConnection.
   rtcConnection: ->
     config = RtcController.rtcConfig()
-    console.log config
     if window.RTCPeerConnection
       return new RTCPeerConnection(config)
     if window.webkitRTCPeerConnection
