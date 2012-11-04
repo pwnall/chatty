@@ -4,6 +4,7 @@ class ChatController
     @model = new ChatModel
     @ws = null
     @pingController = new PingController this
+    @rtcController = new RtcController this
     @view.onMessageSubmission = (text) => @submitMessage text
     @connect()
 

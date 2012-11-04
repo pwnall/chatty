@@ -39,7 +39,7 @@ class Chatty < Sinatra::Application
 
   # Chat JS.
   get('/application.js') do
-    coffee Dir.glob('javascripts/**/*.coffee').sort.map { |f| File.read f }.
+    coffee Dir.glob('web/javascripts/**/*.coffee').sort.map { |f| File.read f }.
            join("\n")
   end
 
