@@ -10,7 +10,7 @@ require 'eventmachine'
 require 'logger'
 
 # Load up the server code.
-Dir[File.expand_path('..', __FILE__) + '/chatty/**/*.rb'].each do |f|
+Dir[File.expand_path('..', __FILE__) + '/**/*.rb'].each do |f|
   require f
 end
 

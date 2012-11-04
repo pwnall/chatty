@@ -1,7 +1,7 @@
 require 'bundler'
 Bundler.setup :default, :web
 
-require './chatty_web.rb'
+require './web/application.rb'
 
 use Rack::Deflater
-run ChattyWeb
+run Chatty

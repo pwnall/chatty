@@ -31,11 +31,12 @@ end
 emoticons.select! { |e| e[:url] && e[:texts] && !e[:texts].empty? }
 
 # Fetch the images.
-FileUtils.mkdir_p 'lib/images/smileys'
+root = 'web/public/images/smileys'
+FileUtils.mkdir_p root
 emoticons.each_with_index do |emoticon, index|
   url = emoticon[:url]
   extension = File.basename(url.path).split('.').last
-  filename = "lib/images/smileys/m#{index}.#{extension}"
+  filename = File.join root, "m#{index}.#{extension}"
   File.open(filename, 'wb') { |f| f.write Net::HTTP.get url }
   emoticon[:file] = filename.split('/', 2).last
 end
