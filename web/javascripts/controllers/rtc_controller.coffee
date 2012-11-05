@@ -100,12 +100,14 @@ class RtcController
 
     switch relay.body.type
       when 'rtc-description'
-        description = new RTCSessionDescription relay.body.description
-        @rtc.setRemoteDescription description,
-            @rtcRemoteDescriptionSuccessHandler, @rtcErrorHandler
+        if relay.body.description
+          description = new RTCSessionDescription relay.body.description
+          @rtc.setRemoteDescription description,
+              @rtcRemoteDescriptionSuccessHandler, @rtcErrorHandler
       when 'rtc-ice'
-        candidate = new RTCIceCandidate relay.body.candidate
-        @rtc.addIceCandidate candidate
+        if relay.body.candidate
+          candidate = new RTCIceCandidate relay.body.candidate
+          @rtc.addIceCandidate candidate
 
   # Re-initializes the RTC state after an error occurs.
   rtcReset: ->
