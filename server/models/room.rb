@@ -51,6 +51,22 @@ class Room
     nil
   end
 
+  def av_event(user, type, av_nonce, name_color, client_timestamp)
+    case type
+    when 'av-accept'
+      @users.each do |name, user|
+        user.sessions.each do |session|
+          if session.room == self and session.av_nonce == av_nonce
+            session.av_nonce = nil
+          end
+        end
+      end
+    end
+
+    event :type => type, :name => user.name, :av_nonce => av_nonce,
+          :name_color => name_color, :client_ts => client_timestamp
+  end
+
   def message(user, text, name_color, client_timestamp)
     event :type => 'text', :name => user.name, :text => text,
           :name_color => name_color, :client_ts => client_timestamp
@@ -72,7 +88,31 @@ class Room
   end
 
   def presence_info
-    @users.map { |name, user| { name: user.name } }
+    response = []
+    @users.each do |name, user|
+      user.sessions.each do |session|
+        next unless session.room == self
+        response << session.presence_info
+      end
+    end
+    response
+  end
+
+  # Relays a message between two users.
+  #
+  # Unlike events, relayed messages are not persisted, so they cannot survive
+  # hardware issues. Relayed messages are intended to help users establish a
+  # direct connection, e.g. by using ICE, and should not be used to transmit
+  # user data.
+  def relay(from_user, to_user_name, body, client_timestamp)
+    message = { relays: [
+        { from: from_user.name, body: body, client_ts: client_timestamp }] }
+    @users.each do |name, user|
+      next unless user.name == to_user_name
+      user.sessions.each do |session|
+        session.respond message if session.room == self
+      end
+    end
   end
 
   # Private constructor. Use Room::named instead.
@@ -108,8 +148,8 @@ class Room
 
   # Saves and broadcasts an event that happened in the chat room.
   #
-  # This method is called internally by methods such as add_user and message. It
-  # should not be called directly.
+  # This method is called internally by methods such as add_user and message.
+  # It should not be called directly.
   #
   # Args:
   #   data:: Hash containing the event details, such as a message's author and

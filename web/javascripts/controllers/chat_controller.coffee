@@ -57,19 +57,32 @@ class ChatController
 
   onMessage: (data) ->
     if data.events
-      @model.addEvent(event) for event in data.events
+      for event in data.events
+        @model.addEvent event
+        @rtcController.onAvEvent(event) if event.av_nonce
       @chatView.update @model
     if data.list
       @model.addList data.list
       @chatView.update @model
     if data.pong
       @pingController.onPong data.pong
+    if data.relays
+      for relay in data.relays
+        @rtcController.onAvRelay(relay) if relay.body?.av_nonce
     @pingController.resetTimer()
 
   submitMessage: (text) ->
-    @socketSend
-      type: 'text', text: text, nonce: @nonce(),
-      client_ts: Date.now() / 1000
+    @submitEvent type: 'text', text: text
+
+  submitEvent: (event) ->
+    event.nonce = @nonce()
+    event.client_ts = Date.now() / 1000
+    @socketSend event
+
+  sendRelay: (receiverName, body) ->
+    @socketSend(
+        type: 'relay', to: receiverName, body: body, nonce: @nonce(),
+        client_ts: Date.now() / 1000)
 
   sendListQuery: ->
     @socketSend type: 'list', nonce: @nonce(), client_ts: Date.now() / 1000

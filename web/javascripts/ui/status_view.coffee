@@ -21,7 +21,7 @@ class StatusView
     @$avError.addClass 'visible'
     @$avError.attr 'title', message || 'Video Malfunction'
 
-  updateAvLiveStatus: (isAvLive) ->
+  showAvLiveStatus: (isAvLive) ->
     if isAvLive
       @$avLive.addClass 'visible'
     else

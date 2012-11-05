@@ -24,9 +24,11 @@ class ChatView
       @$message.focus()
       event.preventDefault()
 
-    @avView = new AvView box
     @statusView = new StatusView box
     @desktopNotifications = new DesktopNotifications box, @$message
+
+    @avView = new AvView box
+    @avAcceptHandler = (event) => @avView.onAvAcceptClick event
 
   onKeyDown: (event) ->
     if event.keyCode is 13 and !event.shiftKey
@@ -62,8 +64,20 @@ class ChatView
       users.sort (a, b) -> a.name.localeCompare(b.name)
       @$users.empty()
       for userInfo in users
-        $li = $ '<li><i class="icon-user icon-large"></i> <span class="name"></span></li>'
+        $li = $ "<li class=\"#{@cssClassFor(userInfo)}\">" +
+            '<i class="icon-user icon-large"></i> ' +
+            '<span class="name"></span> ' +
+            '<button type="button">' +
+            '<i class="icon-facetime-video icon-large"></i>' +
+            '</button></li>'
         $('.name', $li).text userInfo.name
+        if userInfo.av_nonce
+          $('button', $li).attr('title', "Videochat with #{userInfo.name}").
+              attr('data-av-partner', userInfo.name).
+              attr('data-av-nonce', userInfo.av_nonce).
+              click @avAcceptHandler
+        else
+          $('button', $li).addClass 'hidden'
         $li.attr 'data-name', userInfo.name
         @$users.append $li
 
@@ -88,6 +102,15 @@ class ChatView
       when 'part'
         $icon.addClass 'icon-signout'
         $dom.append '<span class="event">left the chat</span>'
+      when 'av-invite'
+        $icon.addClass 'icon-facetime-video'
+        $dom.append '<span class="event">made a video call</span>'
+      when 'av-accept'
+        $icon.addClass 'icon-facetime-video'
+        $dom.append '<span class="event">answered a video call</span>'
+      when 'av-close'
+        $icon.addClass 'icon-facetime-video'
+        $dom.append '<span class="event">hung up from a video call</span>'
     if event.client_ts and Math.abs(event.server_ts - event.client_ts) >= 10
       $dom.addClass 'delayed'
       $dom.attr 'title', 'This message was delayed by the Internet. ' +
@@ -113,14 +136,20 @@ class ChatView
       iconColor = Color(nameColor.hslString()).lightness(60).saturation(25)
 
     rule = """
-    li.#{className} {
+    ul.user-list > li.#{className} > .name {
+      color: #{nameColor.hexString()};
+    }
+    ul.user-list > li.#{className} > i {
+      color: #{iconColor.hexString()};
+    }
+    ul.history > li.#{className} {
       border-color: #{borderColor.hexString()};
       background-color: #{bgColor.hexString()};
     }
-    li.#{className} > i {
+    ul.history > li.#{className} > i {
       color: #{iconColor.hexString()};
     }
-    li.#{className} > span.author {
+    ul.history > li.#{className} > span.author {
       color: #{nameColor.hexString()};
     }
     """

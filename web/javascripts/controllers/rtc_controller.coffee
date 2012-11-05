@@ -5,6 +5,12 @@ class RtcController
     @avView = @chatView.avView
     @statusView = @chatView.statusView
     @avView.onAvClick = (event) => @onAvClick event
+    @avView.onAvAccept = (avNonce, avPartnerName) =>
+        @onAvAccept avNonce, avPartnerName
+
+    @supported = @computeSupported()
+    @avReset()
+    @rtcReset()
 
     @rtcAddStreamHandler = (event) => @onRtcAddStream event
     @iceCandidateHandler = (event) => @onIceCandidate event
@@ -14,30 +20,36 @@ class RtcController
     @rtcRemoveStreamHandler = (event) => @onRtcRemoveStream event
     @rtcChangeHandler = (event) => @onRtcChange event
 
-    @rtcOfferSuccessHandler = (sdp) => @onRtcOfferSdp sdp
+    @rtcOfferSuccessHandler = (sessDescription) =>
+      @onRtcOfferCreate sessDescription
+    @rtcAnswerSuccessHandler = (sessDescription) =>
+      @onRtcAnswerCreate sessDescription
     @rtcLocalDescriptionSuccessHandler = => @onRtcLocalDescriptionSuccess()
+    @rtcRemoteDescriptionSuccessHandler = => @onRtcRemoteDescriptionSuccess()
     @rtcErrorHandler = (errorText) => @onRtcError errorText
 
-
-    @rtcReset()
-
+  # Called when the user clicks on the A/V button.
   onAvClick: (event) ->
     event.preventDefault()
     event.stopPropagation()
+
+    if @calling or @answering
+      @rtcReset()
+      @avReset()
+      # TODO(pwnall): send hangup
+    else
+      @calling = true
+      @avNonce = @chatController.nonce()
+      @avInput()
+
+  # Called when the user accepts an A/V invitation.
+  onAvAccept: (avNonce, avPartnerName) ->
+    return if @calling or @answering
+
+    @answering = true
+    @avNonce = avNonce
+    @setAvPartnerName avPartnerName
     @avInput()
-
-  # Checks for getUserMedia support.
-  computeSupported: ->
-    return false unless @rtc
-
-    # NOTE: the method is more complex than it should be, to match avInput
-    if navigator.getUserMedia
-      return true
-    if navigator.webkitGetUserMedia
-      return true
-    if navigator.mozGetUserMedia
-      return true
-    false
 
   # Prompts the user for permission to use the A/V inputs.
   avInput: ->
@@ -52,10 +64,48 @@ class RtcController
 
   # Called when the user's A/V inputs are provided to the application.
   onAvInputStream: (stream) ->
-    console.log 'onAvInputStream'
-    @avView.showLocalVideo stream
-    @rtc.addStream stream
-    @rtc.createOffer @rtcOfferSuccessHandler, @rtcErrorHandler
+    if @localStream
+      @localStream.stop() if @localStream.stop
+    @localStream = stream
+    @avView.showLocalVideo @localStream
+    @statusView.showAvLiveStatus true
+    if @calling
+      @chatController.submitEvent type: 'av-invite', av_nonce: @avNonce
+      @avNoncePublished = true
+    else if @answering
+      @rtcConnect()
+      if @rtc
+        @chatController.submitEvent type: 'av-accept', av_nonce: @avNonce
+        @avNoncePublished = true
+    else
+      @rtcReset()
+      @avReset()
+
+  # Called when an A/V event is issued in the room.
+  onAvEvent: (event) ->
+    switch event.type
+      when 'av-accept'
+        if @calling and event.av_nonce is @avNonce and !@avPartnerName
+          @setAvPartnerName event.name
+          @rtcConnect()
+      when 'av-close'
+        if event.av_nonce is @avNonce and event.name is @avPartnerName
+          @avReset()
+          @rtcReset()
+
+  # Called when A/V control information is received
+  onAvRelay: (relay) ->
+    if relay.from isnt @avPartnerName or relay.body.av_nonce isnt @avNonce
+      return
+
+    switch relay.body.type
+      when 'rtc-description'
+        description = new RTCSessionDescription relay.body.description
+        @rtc.setRemoteDescription description,
+            @rtcRemoteDescriptionSuccessHandler, @rtcErrorHandler
+      when 'rtc-ice'
+        candidate = new RTCIceCandidate relay.body.candidate
+        @rtc.addIceCandidate candidate
 
   # Re-initializes the RTC state after an error occurs.
   rtcReset: ->
@@ -68,15 +118,41 @@ class RtcController
       @rtc.onremovestream = null
       @rtc.onstatechange = null
       @rtc.close()
+      @rtc = null
 
-    @rtc = @rtcConnection()
-    @supported = @computeSupported()
     if @supported
       @avView.enableAvButton()
     else
       @avView.disableAvButton()
       @statusView.showAvError 'Your browser does not support video chat'
 
+  # Re-initializes the A/V state after an error occurs.
+  avReset: ->
+    @avView.hideVideo()
+    if @localStream
+      @localStream.stop() if @localStream.stop
+      @localStream = null
+    if @remoteStream
+      @remoteStream.stop() if @remoteStream.stop
+      @remoteStream = null
+    @statusView.showAvLiveStatus false
+
+    if @avNonce and @avNoncePublished
+      @chatController.submitEvent type: 'av-close', av_nonce: @avNonce
+    @avNonce = null
+    @setAvPartnerName null
+    @calling = false
+    @answering = false
+    @avNoncePublished = false
+
+  # Creates a RTCPeerConnection and kicks off the ICE process.
+  rtcConnect: ->
+    unless @rtc = @rtcConnection()
+      @avReset()
+      @rtcReset()
+      return
+
+    @rtc.addStream @localStream
 
   # Creates an RTCPeerConnection.
   rtcConnection: ->
@@ -101,52 +177,107 @@ class RtcController
 
   # Called when the remote side added a stream to the connection.
   onRtcAddStream: (event) ->
-    console.log ['addStream', event]
-    @avView.showRemoteVideo event.stream
+    @log ['addStream', event]
+    if @remoteStream
+      @remoteStream.stop() if @remoteStream.stop
+    @remoteStream = event.stream
+    @avView.showRemoteVideo @remoteStream
 
   # Called when the remote side removed a stream from the connection.
   onRtcRemoveStream: (event) ->
-    console.log ['removeStream', event]
+    @log ['removeStream', event]
     @avView.hideVideo()
     @rtcReset()
 
   # Called when ICE has a candidate-something. (incomplete spec)
   onIceCandidate: (event) ->
-    console.log ['iceCandidate', event]
+    @chatController.sendRelay(@avPartnerName,
+        type: 'rtc-ice', candidate: event.candidate, av_nonce: @avNonce)
 
   # Called when the ICE agent makes some progress. (incomplete spec)
   onIceChange: (event) ->
-    console.log ['iceChange', event]
-    # if event.type is 'negotiationneeded'
-    #   @onRtcNegotiationNeeded event
+    @log ['iceChange', event]
 
   # Called when network changes require an ICE re-negotiation.
   onRtcNegotiationNeeded: (event) ->
-    console.log ['iceChange', event]
+    @log ['rtcNegotiationNeeded', event]
+    if @calling
+      @rtc.createOffer @rtcOfferSuccessHandler, @rtcErrorHandler
 
   # Called when something opens. (incomplete spec)
   onRtcOpen: (event) ->
-    console.log ['rtcOpen', event]
+    @log ['rtcOpen', event]
 
   # Called when the RTC state changes.
   onRtcChange: (event) ->
-    console.log ['rtcChange', event]
+    @log ['rtcChange', event]
 
   # Called when RTCPeerConnection.createOffer succeeds.
-  onRtcOfferSdp: (sdp) ->
-    console.log ['rtcOfferSuccess', sdp]
-    @rtc.setLocalDescription sdp, @rtcLocalDescriptionSuccessHandler,
-                             @rtcErrorHandler
+  onRtcOfferCreate: (sessDescription) ->
+    @rtc.setLocalDescription sessDescription,
+        @rtcLocalDescriptionSuccessHandler, @rtcErrorHandler
+    @chatController.sendRelay(@avPartnerName,
+        type: 'rtc-description', description: sessDescription,
+        av_nonce: @avNonce)
+
+  # Called when RTCPeerConnection.createAnswer succeeds.
+  onRtcAnswerCreate: (sessDescription) ->
+    @rtc.setLocalDescription sessDescription,
+        @rtcLocalDescriptionSuccessHandler, @rtcErrorHandler
+    @chatController.sendRelay(@avPartnerName,
+        type: 'rtc-description', description: sessDescription,
+        av_nonce: @avNonce)
 
   # Called when RTCPeerConnection.setLocalDescription succeeds.
   onRtcLocalDescriptionSuccess: ->
-    console.log ['rtcLocalDescripionSuccess']
+    @log ['rtcLocalDescripionSuccess']
+
+  # Called when RTCPeerConnection.setRemoteDescription succeeds.
+  onRtcRemoteDescriptionSuccess: ->
+    @log ['rtRemoteDescripionSuccess']
+    if @answering
+      @rtc.createAnswer @rtcAnswerSuccessHandler, @rtcErrorHandler
 
   # Called when a step in the RTC process fails.
   onRtcError: (errorText) ->
     @statusView.showAvError errorText
     @avView.hideVideo()
     @rtcReset()
+
+  # Called when we know who we're talking to.
+  setAvPartnerName: (avPartnerName) ->
+    @avPartnerName = avPartnerName
+    @avView.showPartnerName @avPartnerName
+
+  # Checks for getUserMedia and RTCPeerConnection support.
+  computeSupported: ->
+    @isRtcPeerConnectionSupported() && @isUserMediaSupported()
+
+  isRtcPeerConnectionSupported: ->
+    # NOTE: this method is overly complex, to match rtcConnection
+    if window.RTCPeerConnection
+      return true
+    else if window.webkitRTCPeerConnection
+      return true
+    else if window.mozRTCPeerConnection
+      return true
+    else
+      return false
+
+  isUserMediaSupported: ->
+    # NOTE: the method is overly complex, to match avInput
+    if navigator.getUserMedia
+      return true
+    if navigator.webkitGetUserMedia
+      return true
+    if navigator.mozGetUserMedia
+      return true
+    false
+
+  # Logs progress for the purpose of debugging.
+  log: (data) ->
+    if window.location.host == 'localhost' and console and console.log
+      console.log data
 
   # RTCPeerConnection configuration.
   @rtcConfig: ->

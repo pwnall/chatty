@@ -8,14 +8,17 @@ class Session
   attr_reader :user
   attr_reader :room
   attr_reader :name_color
+  attr_accessor :av_nonce
 
   def initialize(web_socket, nexus)
     @ws = web_socket
     @nexus = nexus
     @user = nil
     @room = nil
-    @name_color = nil
     @nonces = Set.new
+
+    @name_color = nil  # Set by the user.
+    @av_nonce = nil    # Set by the user.
   end
 
   # Called after the WebSocket handshake completes.
@@ -57,12 +60,44 @@ class Session
       return if @nonces.include?(data[:nonce])
       @nonces << data[:nonce]
       room.message @user, data[:text], @name_color, data[:client_ts]
+    when 'av-invite', 'av-accept', 'av-close'
+      return if @nonces.include?(data[:nonce])
+      @nonces << data[:nonce]
+      av_message data
     when 'sync'
       @last_event_id = data[:last_event_id].to_i
       sync_events
     when 'ping'
       respond pong: { nonce: data[:nonce], client_ts: data[:client_ts] }
+    when 'relay'
+      return if @nonces.include?(data[:nonce])
+      @nonces << data[:nonce]
+      room.relay @user, data[:to], data[:body], data[:client_ts]
     end
+  end
+
+  # Called by #received to process A/V events.
+  def av_message(message_data)
+    case message_data['type']
+    when 'av-invite'
+      @av_nonce = message_data[:av_nonce]
+    when 'av-accept'
+      # NOTE: room#av_event takes care of av-accept
+    when 'av-close'
+      @av_nonce = nil if @av_nonce == message_data[:av_nonce]
+    end
+
+    room.av_event @user, message_data[:type], message_data[:av_nonce],
+                  @name_color, message_data[:client_ts]
+  end
+
+  # Returns a JSON hash describing the session info for this user.
+  def presence_info
+    {
+      name: @user.name,
+      name_color: @name_color,
+      av_nonce: @av_nonce
+    }
   end
 
   # Transmits any events that the client might not know about.

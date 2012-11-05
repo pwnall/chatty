@@ -12,8 +12,8 @@ class ChatModel
   addList: (roomList) ->
     @title = roomList.title
     @users = {}
-    for user in roomList.presence
-      @users[user.name] = user
+    for userInfo in roomList.presence
+      @users[userInfo.name] = userInfo
     @roomVersion += 1
 
   addEvent: (event) ->
@@ -22,14 +22,41 @@ class ChatModel
     @events[event.id] = event
     @lastEventId = event.id
 
+    # NOTE: the presence cache uses snake_case, because it follows the server
+    #       data format
     switch event.type
       when 'join'
         unless event.session2
-          @users[event.name] = { name: event.name }
+          @users[event.name] =
+              name: event.name, name_color: event.name_color, av_nonce: null
           @roomVersion += 1
       when 'part'
         unless event.session2
           delete @users[event.name]
+          @roomVersion += 1
+      when 'av-invite'
+        unless @users[event.name]
+          @users[event.name] =
+              name: event.name, name_color: event.name_color, av_nonce: null
+        unless @users[event.name].av_nonce is event.av_nonce
+          @users[event.name].av_nonce = event.av_nonce
+          @roomVersion += 1
+      when 'av-accept'
+        unless @users[event.name]
+          @users[event.name] =
+              name: event.name, name_color: event.name_color, av_nonce: null
+          @roomVersion += 1
+        for own name, userInfo of @users
+          if userInfo.av_nonce is event.av_nonce
+            userInfo.av_nonce = null
+            @roomVersion += 1
+      when 'av-close'
+        unless @users[event.name]
+          @users[event.name] =
+              name: event.name, name_color: event.name_color, av_nonce: null
+          @roomVersion += 1
+        if @users[event.name].av_nonce is event.av_nonce
+          @users[event.name].av_nonce = null
           @roomVersion += 1
 
   getEvent: (eventId) -> @events[eventId]

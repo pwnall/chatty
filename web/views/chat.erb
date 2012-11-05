@@ -22,8 +22,7 @@
   <body>
     <div id="browser-window">
       <div class="chat-box" data-server="<%= @chat_url %>">
-        <style type="text/css" scoped="scoped">
-        </style>
+        <style type="text/css" scoped="scoped"></style>
 
         <section class="title-bar">
           <div class="title-area">
@@ -74,10 +73,10 @@
                placeholder="Type your message here. Press Enter to send.">
           </textarea>
           <section class="action">
-            <button type="button" class="send-button">
+            <button type="button" class="send-button" title="Send message">
               <i class="icon-comment"></i>
             </button>
-            <button type="button" class="av-button hidden">
+            <button type="button" class="av-button hidden" title="Videochat">
               <i class="icon-facetime-video"></i>
             </button>
           </section>
