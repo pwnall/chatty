@@ -71,7 +71,7 @@ from [the web-socket-js project](https://github.com/gimite/web-socket-js).
 JavaScript color processing is done by the
 [color.js library](https://github.com/harthur/color).
 
-The fonts are provided by
+The icons are provided by
 [FontAwesome](http://fortawesome.github.com/Font-Awesome/).
 
 The [Source Sans Pro](http://www.google.com/webfonts/specimen/Source%20Sans%20Pro)

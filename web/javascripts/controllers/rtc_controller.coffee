@@ -123,9 +123,9 @@ class RtcController
       @rtc = null
 
     if @supported
-      @avView.enableAvButton()
+      @avView.enableAvControls()
     else
-      @avView.disableAvButton()
+      @avView.disableAvControls()
       @statusView.showAvError 'Your browser does not support video chat'
 
   # Re-initializes the A/V state after an error occurs.

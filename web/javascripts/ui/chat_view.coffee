@@ -69,7 +69,7 @@ class ChatView
             '<span class="name"></span> ' +
             '<button type="button">' +
             '<i class="icon-facetime-video icon-large"></i>' +
-            '</button></li>'
+            ' Join video chat</button></li>'
         $('.name', $li).text userInfo.name
         if userInfo.av_nonce
           $('button', $li).attr('title', "Videochat with #{userInfo.name}").

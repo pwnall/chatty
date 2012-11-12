@@ -1,5 +1,7 @@
 class AvView
-  constructor: (box: box) ->
+  constructor: (box) ->
+    @$box = $(box)
+
     @$avContainer = $('.av-container', box)
     @$localVideo = $('video.local', @$avContainer)
     @localVideo = @$localVideo[0]
@@ -23,11 +25,11 @@ class AvView
     avPartnerName = $button.attr 'data-av-partner'
     @onAvAccept avNonce, avPartnerName
 
-  enableAvButton: ->
-    @$avButton.removeClass 'hidden'
+  enableAvControls: ->
+    @$box.removeClass 'av-hidden'
 
-  disableAvButton: ->
-    @$avButton.addClass 'hidden'
+  disableAvControls: ->
+    @$box.addClass 'av-hidden'
 
   showLocalVideo: (stream) ->
     @$avContainer.addClass 'no-remote'
@@ -41,7 +43,7 @@ class AvView
     @$avContainer.removeClass 'hidden'
 
   showPartnerName: (avPartnerName) ->
-    @$partnerName.text avPartnerName || 'placing call...'
+    @$partnerName.text avPartnerName || 'waiting for a partner...'
 
   hideVideo: ->
     @showPartnerName null
