@@ -3,7 +3,7 @@ require 'compass'
 require 'sinatra'
 
 class Chatty < Sinatra::Application
-  # Serve files in lib without any modification.
+  # Serve files in public/ without any modification.
   set :public_folder, File.join(File.dirname(__FILE__), 'public')
 
   # Serve templates from the same folder.

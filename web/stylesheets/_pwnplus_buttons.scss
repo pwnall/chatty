@@ -13,7 +13,7 @@
   @include inline-block;
 
   margin: 0;
-  padding: 0.1em 1ex;
+  padding: 0.2em 1ex 0 1ex;
   border: 1px solid $border-color;
   @include border-radius(2px);
 

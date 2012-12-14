@@ -22,26 +22,13 @@
     text-align: center;
   }
 
-  .fields {
-    padding: 0.5em 0.5em 0 0.5em;
-    display: table;
-    width: 100%;
-  }
   .field {
-    display: table-row;
-    label, input {
-      display: table-cell;
-    }
     label {
       width: 1em;
       i::before {
         width: 100%;
         text-align: center;
       }
-    }
-    input, select {
-      @include border-box-sizing;
-      width: 100%;
     }
     input {
       @include pwnplus-text-field($border-color);
