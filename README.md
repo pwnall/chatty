@@ -56,7 +56,7 @@ foreman start
 ```
 
 
-### Production Setup
+## Production Setup
 
 After following the common steps above, go through the additional instructions
 below.
@@ -90,6 +90,16 @@ cat ssl/chatty.cer ssl/ca.pem ssl/ca2.pem > ssl/chatty.crt
 rm ssl/ca.pem ssl/ca2.pem ssl/chatty.crt
 ```
 
+If you use git for deployment, use the commands below to add your SSL
+certificates to a (protected) `prod` branch, and always rebase against `master`
+instead of merging.
+
+```bash
+git checkout -b prod
+git add -f ssl/chatty.crt ssl/chatty.pem
+git commit -m "Production SSL certificates."
+```
+
 Chatty's application server is not well-suited to be exposed to the outside
 world and does not support SSL. Configure [nginx](http://nginx.org) as a
 reverse proxy, and point it to the Chatty SSL certificates. Below is a sample
@@ -97,7 +107,7 @@ nginx configuration.
 
 ```
 upstream chatty {
-  server 127.0.0.1:12340;
+  server 127.0.0.1:12300;
 }
 server {
   listen 443;
@@ -133,15 +143,15 @@ DNS name to `/etc/hosts` on your development machine.
 127.0.0.1 chat.pwnb.us
 ```
 
-#### Service
+### Service
 
 Chatty should be ran as a service in production, so it survives server reboots.
 
 ```bash
 # Ubuntu / Debian
-foreman export upstart /etc/init --procfile Procfile.prod --env prod.env --user $USER --port 12340
+foreman export upstart /etc/init --procfile Procfile.prod --env prod.env --user $USER --port 12300
 # Fedora / RedHat
-foreman export systemd /etc/systemd/system --procfile Procfile.prod --env prod.env --user $USER --port 12340
+foreman export systemd /etc/systemd/system --procfile Procfile.prod --env prod.env --user $USER --port 12300
 ```
 
 
