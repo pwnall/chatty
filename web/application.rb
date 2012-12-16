@@ -32,8 +32,9 @@ class Chatty < Sinatra::Application
     name_color = params[:name_color] ? params[:name_color].strip : '000000'
     server = request.host
     port = ENV['PORT'] ? ENV['PORT'].to_i + 100 : 9494
-    @chat_url = "ws://#{server}:#{port}/chat?room=#{room}&name=#{name}&" +
-                "name_color=#{name_color}"
+    protocol = request.ssl? ? 'wss' : 'ws'
+    @chat_url = "#{protocol}://#{server}:#{port}/chat?room=#{room}&" +
+                "name=#{name}&name_color=#{name_color}"
     erb :"views/chat"
   end
 

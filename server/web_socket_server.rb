@@ -20,7 +20,14 @@ class WebSocketServer
 
   def run
     @log.info "Server PID #{$PID}, listening on #{host} port #{port}"
-    EventMachine::WebSocket.start :host => host, :port => port do |ws|
+    server_settings = { :host => host, :port => port }
+    if ENV['RACK_ENV'] == 'production'
+      server_settings[:secure] = true
+      server_settings[:tls_options] = { :private_key_file => 'ssl/chatty.pem',
+          :cert_chain_file => 'ssl/chatty.crt', :verify_peer => false }
+    end
+
+    EventMachine::WebSocket.start server_settings do |ws|
       session = Session.new ws, @nexus
       ws.onopen do
         @log.debug "WebSocket opened: #{ws.request.inspect}"

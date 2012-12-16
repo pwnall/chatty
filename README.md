@@ -49,17 +49,99 @@ Create or update the database.
 bundle exec server/db_schema.rb
 ```
 
-Start up the web server.
+Start up Chatty in development mode.
 
 ```bash
 foreman start
 ```
 
-For production use, create a service.
+
+### Production Setup
+
+After following the common steps above, go through the additional instructions
+below.
+
+### SSL
+
+Production installations should use SSL to protect users' privacy.
+[StartSSL](https://www.startssl.com/?app=1) provides free SSL certificates.
+
+The
+command below generates a CSR for use with any SSL provider, in
+`ssl/chatty.csr`.
 
 ```bash
-foreman export systemd /etc/systemd/system --procfile Procfile.prod --user $USER
-foreman export upstart /etc/init --procfile Procfile.prod --user $USER
+openssl req -new -newkey rsa:2048 -sha256 -nodes -keyout ssl/chatty.pem -out ssl/chatty.csr
+```
+
+If you use StartSSL, open `ssl/chatty.csr` in a text editor and copy-paste its
+contents in the certificate request form.
+
+The certificate chain from the SSL provider should be saved in `ssl/chatty.crt`
+in PEM format.
+
+If you use StartSSL, use the following commands to put together a chain.
+
+```bash
+vim ssl/chatty.cer  # Paste the OpenSSL certificate.
+curl https://www.startssl.com/certs/ca.pem > ssl/ca.pem
+curl https://www.startssl.com/certs/sub.class1.server.ca.pem > ssl/ca2.pem
+cat ssl/chatty.cer ssl/ca.pem ssl/ca2.pem > ssl/chatty.crt
+rm ssl/ca.pem ssl/ca2.pem ssl/chatty.crt
+```
+
+Chatty's application server is not well-suited to be exposed to the outside
+world and does not support SSL. Configure [nginx](http://nginx.org) as a
+reverse proxy, and point it to the Chatty SSL certificates. Below is a sample
+nginx configuration.
+
+```
+upstream chatty {
+  server 127.0.0.1:12340;
+}
+server {
+  listen 443;
+  charset utf-8;
+
+  ssl on;
+  ssl_certificate /home/chatty_user/chatty/ssl/chatty.crt;
+  ssl_certificate_key /home/chatty_user/chatty/ssl/chatty.pem;
+
+  server_name chatty.server.com;
+  root /home/chatty_user/chatty/public;
+  location / {
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+
+    proxy_set_header Host $host;
+    proxy_redirect off;
+    proxy_connect_timeout 2;
+    proxy_read_timeout 86400;
+    if (!-f $request_filename) {
+      proxy_pass http://chatty;
+      break;
+    }
+  }
+}
+```
+
+To test your SSL and nginx configuration on your machine, add your server's
+DNS name to `/etc/hosts` on your development machine.
+
+```
+127.0.0.1 chat.pwnb.us
+```
+
+#### Service
+
+Chatty should be ran as a service in production, so it survives server reboots.
+
+```bash
+# Ubuntu / Debian
+foreman export upstart /etc/init --procfile Procfile.prod --env prod.env --user $USER --port 12340
+# Fedora / RedHat
+foreman export systemd /etc/systemd/system --procfile Procfile.prod --env prod.env --user $USER --port 12340
 ```
 
 
