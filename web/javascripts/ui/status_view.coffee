@@ -16,7 +16,6 @@ class StatusView
     @$networkWin.attr 'title', message || 'Connected'
 
   showAvError: (message) ->
-    console.log message
     @$avLive.removeClass 'visible'
     @$avError.addClass 'visible'
     @$avError.attr 'title', message || 'Video Malfunction'

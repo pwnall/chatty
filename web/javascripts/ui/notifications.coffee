@@ -45,14 +45,14 @@ class DesktopNotificationsBase
 
   # WebKit implementation of checkPermission.
   webkitQueryPermission: ->
-    permissions = @backend.checkPermission()
-    if permissions is (@backend.PERMISSION_ALLOWED or 0)
+    permission = @backend.checkPermission()
+    if permission is (@backend.PERMISSION_ALLOWED or 0)
       @prompted = true
       @allowed = true
-    if permissions is (@backend.PERMISSION_NOT_ALLOWED or 1)
+    if permission is (@backend.PERMISSION_NOT_ALLOWED or 1)
       @prompted = false
       @allowed = false
-    if permissions is (@backend.PERMISSION_DENIED or 2)
+    if permission is (@backend.PERMISSION_DENIED or 2)
       @prompted = true
       @allowed = false
 
@@ -66,9 +66,17 @@ class DesktopNotifications extends DesktopNotificationsBase
   constructor: (@chatbox, @$composer) ->
     super
     @notifications = {}
-    @focused = document.hasFocus()
-    window.addEventListener 'focus', (=> @onWindowFocus()), true
-    window.addEventListener 'blur', (=> @onWindowBlur()), true
+    @visible = @isVisible()
+    eventName = 'visiblitychange'
+    if document.visibilityState
+      eventName = 'visibilitychange'
+    else if document.webkitVisibilityState
+      eventName = 'webkitvisibilitychange'
+    else if document.mozVisibilityState
+      eventName = 'mozvisibilitychange'
+    else if document.msVisibilityState
+      eventName = 'msvisibilitychange'
+    document.addEventListener eventName, (=> @onVisibilityChange()), false
 
     unless @prompted
       $prompt = $('.notification-bar .desktop', @chatbox)
@@ -79,12 +87,20 @@ class DesktopNotifications extends DesktopNotificationsBase
         event.preventDefault()
         false
 
+  # True if the application's tab is visible by the user.
+  isVisible: ->
+    visibilityState = document.visibilityState or
+        document.webkitVisibilityState or document.mozVisibilityState or
+        document.msVisibilityState
+    (not visibilityState) or (visibilityState is 'visible')
+
   # Issues any notifications that may be relevant for a new event.
   serverEvent: (event) ->
-    return if @focused or not @allowed
+    return if @visible or not @allowed
+
     if event.type is 'text'
       author = event.name
-      icon = '/images/icons/chat32.png'
+      icon = "#{document.location.origin}/images/icons/chat32.png"
 
       @notifications[author].cancel() if @notifications[author]
       post = @post icon, "#{author} says", "#{event.text}"
@@ -93,13 +109,10 @@ class DesktopNotifications extends DesktopNotificationsBase
         @$composer.focus()
       @notifications[author] = post
 
-  # Keeps track of the chat window's focus status.
-  onWindowBlur: ->
-    @focused = false
-
-  # Dismisses all notifications when the chat window regains focus.
-  onWindowFocus: ->
-    @focused = true
-    for author, notification of @notifications
-      notification.cancel()
-    @notifications = {}
+  # Keeps track of the chat window's visibility state.
+  onVisibilityChange: ->
+    @visible = @isVisible()
+    if @visible
+      for author, notification of @notifications
+        notification.cancel()
+      @notifications = {}
