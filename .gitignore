@@ -3,3 +3,5 @@
 *.log
 *.sw*
 
+# SSL ceritificates for production.
+ssl
