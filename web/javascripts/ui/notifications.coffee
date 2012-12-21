@@ -58,7 +58,7 @@ class DesktopNotificationsBase
 
   # WebKit implementation of requestPermission.
   webkitRequestPermission: ->
-    @backend.requestPermission => @queryPermission
+    @backend.requestPermission => @queryPermission()
 
 # Application-specific implementation for desktop notifications.
 class DesktopNotifications extends DesktopNotificationsBase
