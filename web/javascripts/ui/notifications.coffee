@@ -79,7 +79,7 @@ class DesktopNotifications extends DesktopNotificationsBase
     document.addEventListener eventName, (=> @onVisibilityChange()), false
 
     unless @prompted
-      $prompt = $('.notification-bar .desktop', @chatbox)
+      $prompt = $('.status-bar .desktop', @chatbox)
       $prompt.addClass 'visible'
       $prompt.click (event) =>
         $prompt.removeClass 'visible'
