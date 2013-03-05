@@ -55,12 +55,13 @@ class RtcController
   avInput: ->
     media = { video: true, audio: true }
     callback = (stream) => @onAvInputStream stream
+    errorCallback = (error) => @onAvInputError error
     if navigator.getUserMedia
-      navigator.getUserMedia media, callback
+      navigator.getUserMedia media, callback, errorCallback
     if navigator.webkitGetUserMedia
-      navigator.webkitGetUserMedia media, callback
+      navigator.webkitGetUserMedia media, callback, errorCallback
     if navigator.mozGetUserMedia
-      navigator.mozGetUserMedia media, callback
+      navigator.mozGetUserMedia media, callback, errorCallback
 
   # Called when the user's A/V inputs are provided to the application.
   onAvInputStream: (stream) ->
@@ -159,7 +160,8 @@ class RtcController
   # Creates an RTCPeerConnection.
   rtcConnection: ->
     config = RtcController.rtcConfig()
-    if window.RTCPeerConnection
+    if window.RTCPeerConnection and
+        typeof window.RTCPeerConnection is 'function'
       rtc = new RTCPeerConnection(config)
     else if window.webkitRTCPeerConnection
       rtc = new webkitRTCPeerConnection(config)
@@ -246,6 +248,15 @@ class RtcController
     @avView.hideVideo()
     @rtcReset()
 
+  # Called when there is a failure in getting video.
+  #
+  # The most likely failure is the user didn't grant us permissions.
+  onAvInputError: (errorText) ->
+    @statusView.showAvError errorText
+    @avView.hideVideo()
+    @rtcReset()
+
+
   # Called when we know who we're talking to.
   setAvPartnerName: (avPartnerName) ->
     @avPartnerName = avPartnerName
@@ -307,5 +318,10 @@ class RtcController
       "stun.voipstunt.com",
       "stun.voxgratia.org",
       "stun.xten.com",
+      "numb.viagenie.ca",
+      "stun.counterpath.net",
+      # Firefox doesn't do DNS resolution here :/
+      # This is stun.l.google.com
+      "173.194.78.127:19302"
     ]
 

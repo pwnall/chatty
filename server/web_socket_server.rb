@@ -29,9 +29,9 @@ class WebSocketServer
 
     EventMachine::WebSocket.start server_settings do |ws|
       session = Session.new ws, @nexus
-      ws.onopen do
-        @log.debug "WebSocket opened: #{ws.request.inspect}"
-        session.connected ws.request['query']
+      ws.onopen do |handshake|
+        @log.debug { "WebSocket #{ws.inspect} opened: #{handshake.inspect}" }
+        session.connected handshake.query
       end
       ws.onclose do
         @log.debug 'WebSocket closed'
