@@ -9,6 +9,7 @@ class RtcController
         @onAvAccept avNonce, avPartnerName
 
     @supported = @computeSupported()
+    @rtc = null
     @avReset()
     @rtcReset()
 
@@ -53,18 +54,20 @@ class RtcController
 
   # Prompts the user for permission to use the A/V inputs.
   avInput: ->
-    media = { video: true, audio: true }
+    constraints = { video: true, audio: true }
     callback = (stream) => @onAvInputStream stream
     errorCallback = (error) => @onAvInputError error
     if navigator.getUserMedia
-      navigator.getUserMedia media, callback, errorCallback
-    if navigator.webkitGetUserMedia
-      navigator.webkitGetUserMedia media, callback, errorCallback
-    if navigator.mozGetUserMedia
-      navigator.mozGetUserMedia media, callback, errorCallback
+      navigator.getUserMedia constraints, callback, errorCallback
+    else if navigator.webkitGetUserMedia
+      navigator.webkitGetUserMedia constraints, callback, errorCallback
+    else if navigator.mozGetUserMedia
+      navigator.mozGetUserMedia constraints, callback, errorCallback
 
   # Called when the user's A/V inputs are provided to the application.
   onAvInputStream: (stream) ->
+    @log ['avInputStream', stream]
+
     if @localStream
       @localStream.stop() if @localStream.stop
     @localStream = stream
@@ -102,12 +105,12 @@ class RtcController
     switch relay.body.type
       when 'rtc-description'
         if relay.body.description
-          description = new RTCSessionDescription relay.body.description
+          description = @rtcSessionDescription relay.body.description
           @rtc.setRemoteDescription description,
               @rtcRemoteDescriptionSuccessHandler, @rtcErrorHandler
       when 'rtc-ice'
         if relay.body.candidate
-          candidate = new RTCIceCandidate relay.body.candidate
+          candidate = @rtcIceCandidate relay.body.candidate
           @rtc.addIceCandidate candidate
 
   # Re-initializes the RTC state after an error occurs.
@@ -115,11 +118,11 @@ class RtcController
     if @rtc
       @rtc.onaddstream = null
       @rtc.onicecandidate = null
-      @rtc.onincechange = null
+      @rtc.oninceconnectionstatechange = null
       @rtc.onnegotiationneeded = null
       @rtc.onopen = null
       @rtc.onremovestream = null
-      @rtc.onstatechange = null
+      @rtc.onsignalingstatechange = null
       @rtc.close()
       @rtc = null
 
@@ -172,12 +175,31 @@ class RtcController
 
     rtc.onaddstream = @rtcAddStreamHandler
     rtc.onicecandidate = @iceCandidateHandler
-    rtc.onincechange = @iceChangeHandler
+    rtc.oninceconnectionstatechange = @iceChangeHandler
     rtc.onnegotiationneeded = @rtcNegotiationHandler
     rtc.onopen = @rtcOpenHandler
     rtc.onremovestream = @rtcRemoveStreamHandler
-    rtc.onstatechange = @rtcChangeHandler
+    rtc.onsignalingstatechange = @rtcChangeHandler
     rtc
+
+  # Creates a RTCSessionDescription.
+  rtcSessionDescription: (descriptionString) ->
+    if window.RTCSessionDescription and
+        typeof window.RTCSessionDescription is 'function'
+      new RTCSessionDescription descriptionString
+    else if window.mozRTCSessionDescription
+      new mozRTCSessionDescription descriptionString
+    else
+      null
+
+  # Creates a RTCIceCandidate.
+  rtcIceCandidate: (iceString) ->
+    if window.RTCIceCandidate and typeof window.RTCIceCandidate is 'function'
+      new RTCIceCandidate iceString
+    else if window.mozRTCIceCandidate
+      new mozRTCIceCandidate iceString
+    else
+      null
 
   # Called when the remote side added a stream to the connection.
   onRtcAddStream: (event) ->
@@ -195,6 +217,7 @@ class RtcController
 
   # Called when ICE has a candidate-something. (incomplete spec)
   onIceCandidate: (event) ->
+    @log ['iceCandidate', event]
     @chatController.sendRelay(@avPartnerName,
         type: 'rtc-ice', candidate: event.candidate, av_nonce: @avNonce)
 
@@ -218,6 +241,7 @@ class RtcController
 
   # Called when RTCPeerConnection.createOffer succeeds.
   onRtcOfferCreate: (sessDescription) ->
+    @log ['rtcOfferCreate', sessDescription]
     @rtc.setLocalDescription sessDescription,
         @rtcLocalDescriptionSuccessHandler, @rtcErrorHandler
     @chatController.sendRelay(@avPartnerName,
@@ -226,6 +250,7 @@ class RtcController
 
   # Called when RTCPeerConnection.createAnswer succeeds.
   onRtcAnswerCreate: (sessDescription) ->
+    @log ['rtcAnswerCreate', sessDescription]
     @rtc.setLocalDescription sessDescription,
         @rtcLocalDescriptionSuccessHandler, @rtcErrorHandler
     @chatController.sendRelay(@avPartnerName,
@@ -251,11 +276,11 @@ class RtcController
   # Called when there is a failure in getting video.
   #
   # The most likely failure is the user didn't grant us permissions.
-  onAvInputError: (errorText) ->
-    @statusView.showAvError errorText
+  onAvInputError: (error) ->
+    @log ['avInputError', error]
+    @statusView.showAvError error
     @avView.hideVideo()
     @rtcReset()
-
 
   # Called when we know who we're talking to.
   setAvPartnerName: (avPartnerName) ->
@@ -268,7 +293,7 @@ class RtcController
 
   isRtcPeerConnectionSupported: ->
     # NOTE: this method is overly complex, to match rtcConnection
-    if window.RTCPeerConnection
+    if window.RTCPeerConnection and typeof RTCPeerConnection is 'function'
       return true
     else if window.webkitRTCPeerConnection
       return true
@@ -289,8 +314,9 @@ class RtcController
 
   # Logs progress for the purpose of debugging.
   log: (data) ->
-    if window.location.host == 'localhost' and console and console.log
+    if window.location.protocol isnt 'https:' and window.console?.log
       console.log data
+    return
 
   # RTCPeerConnection configuration.
   @rtcConfig: ->
@@ -322,6 +348,6 @@ class RtcController
       "stun.counterpath.net",
       # Firefox doesn't do DNS resolution here :/
       # This is stun.l.google.com
-      "173.194.78.127:19302"
+      # "173.194.78.127:19302"
     ]
 
