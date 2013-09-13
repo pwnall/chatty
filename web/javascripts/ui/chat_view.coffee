@@ -25,7 +25,7 @@ class ChatView
       event.preventDefault()
 
     @statusView = new StatusView box
-    @desktopNotifications = new DesktopNotifications box, @$message
+    @notifications = new DesktopNotifications box, @$message
 
     @avView = new AvView box
     @avAcceptHandler = (event) => @avView.onAvAcceptClick event
@@ -117,7 +117,7 @@ class ChatView
                          'It may be out of context.'
     @$history.prepend $dom
 
-    @desktopNotifications.serverEvent event
+    @notifications.serverEvent event
 
   cssClassFor: (event) ->
     key = event.name_color || '000000'
