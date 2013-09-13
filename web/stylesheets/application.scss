@@ -6,7 +6,8 @@
 
 @import 'compass_loader';
 
-@import 'font_awesome';
+$FontAwesomePath: "/fonts/fontawesome";
+@import 'font-awesome/font-awesome';
 
 @import 'pwnplus_fields';
 @import 'pwnplus_buttons';
