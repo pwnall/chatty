@@ -320,7 +320,7 @@ class RtcController
 
   # RTCPeerConnection configuration.
   @rtcConfig: ->
-    iceServers: ({ url: "stun:#{url}" } for url in @stunServers())
+    iceServers: ({ urls: "stun:#{url}" } for url in @stunServers())
 
   # Array of STUN servers that can be used by WebRTC.
   @stunServers: ->
